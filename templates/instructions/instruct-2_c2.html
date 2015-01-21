@@ -1,0 +1,45 @@
+<div id="container-instructions">
+
+    <h1>Instructions</h1>
+
+    <div class="instructions well">
+
+        <h4>
+        The object of the game is to accrue as many points as possible. These points will then be translated into bonus pay at the end of the game.
+        </h4>
+
+        <p>
+        The premise is simple: You navigate your character (the red colored person) to successfully make it to the end of a line at the left of the screen using the arrow keys. Each line has a point value assigned. You only receive points when you reach the beginning of a line. Below is an example of what the game will look like:
+        </p>
+	<img id="imgInstruct" src="{{ server_location }}/static/images/LineWaitingInstructions_withEstimate.png" alt="Game Board"/>
+	
+        <script type="text/javascript">
+        //console.log(psiTurk.getInstructionIndicator())
+        </script>
+
+    </div>
+
+     <div class="instructionsnav">
+        <div class="row">
+            <div class="col-xs-2">
+            	<!--  Maybe not previous button on this screen? -->
+            	<!--
+                <button type="button" id="next" value="next" class="btn btn-primary btn-lg previous">
+                <span class="glyphicon glyphicon-arrow-left"></span> Previous
+                </button>
+            	-->
+            </div>
+            <div class="col-xs-8">
+            	<center>
+	                <button type="button" id="next" value="next" class="btn btn-success btn-lg continue">
+	                Begin experiment <span class="glyphicon glyphicon-arrow-right"></span>
+	                </button>
+	            </center>
+            </div>
+            <div class="col-xs-2">
+
+            </div>
+        </div>
+    </div>
+
+</div>

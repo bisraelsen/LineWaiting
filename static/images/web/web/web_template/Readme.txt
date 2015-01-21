@@ -1,0 +1,3 @@
+Alternate Colors
+-----------------
+Alternate placeholder banner colors have been included in images/alternate_banner_colors folder of this package. To try them simply copy the corresponding color file to images/banner.png. There are also secondary color choices controled by css files in the root in alternate_css_color_schemes. To try those simply copy the .css file from alternate_css_color_schemes to style.css in the root of the package. University Communications will send you a new set of banners containing the name you requested in the download form. At that time you will copy your desired banner graphic to images/banner.png to install it.
