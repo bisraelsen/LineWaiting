@@ -70,9 +70,14 @@ var mycounterbalance = counterbalance;  // they tell you which condition you hav
 
 //List of all pages that need to be loaded
 var pages = [
-"instructions/instruct-1.html",
-"instructions/instruct-2_c1.html",
-"instructions/instruct-2_c2.html",
+"instructions/instruct-p1.html",
+"instructions/instruct-p2.html",
+"instructions/instruct-p3.html",
+"instructions/instruct-p4.html",
+"instructions/instruct-p5.html",
+"instructions/instruct-p6_1.html",
+"instructions/instruct-p6_2.html",
+"instructions/instruct-p7.html",
 "stage.html"
 ];
 
@@ -81,13 +86,22 @@ psiTurk.preloadPages(pages);
 //change last page based on the experimental condition
 if (INTER_REWARDS) {
   var instructionPages = [ // add as a list as many pages as you like
-  "instructions/instruct-1.html",
-  "instructions/instruct-2_c2.html",
+  "instructions/instruct-p1.html",
+  "instructions/instruct-p2.html",
+  "instructions/instruct-p3.html",
+  "instructions/instruct-p4.html",
+  "instructions/instruct-p5.html",
+  "instructions/instruct-p6_1.html",
+  "instructions/instruct-p7.html"
   ];
 } else {
   var instructionPages = [ // add as a list as many pages as you like
-  "instructions/instruct-1.html",
-  "instructions/instruct-2_c1.html",
+  "instructions/instruct-p1.html",
+  "instructions/instruct-p2.html",
+  "instructions/instruct-p3.html",
+  "instructions/instruct-p4.html",
+  "instructions/instruct-p5.html",
+  "instructions/instruct-p6_2.html"
   ];
 } 
 
