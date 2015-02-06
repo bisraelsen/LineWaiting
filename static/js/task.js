@@ -220,13 +220,14 @@ function draw(){
   ctx.fillText(PLAYER_SCORE.toString(),140,41);
   getTime();
   TIME_REMAINING_RND = Math.round(TIME_REMAINING/1000)
-  ctx.fillText("Time:",370,41);
+  ctx.font="25px Georgia";
+  ctx.fillText("Seconds Remaining:",260,38);
+  ctx.font="40px Georgia";
   ctx.fillText(TIME_REMAINING_RND.toString(),490,41);
   ctx.font="20px Georgia";
   ctx.fillText("Controls:",5,300);
-  ctx.fillText("Press the left arrow to move ahead in line when a spot is available",5,320);
-  ctx.fillText("Press the up/down arrows to switch lines at any time",5,340);
-  ctx.fillText("Remember, if you wait too long to move up someone will take your spot!",5,360);
+  ctx.fillText("Left Arrow - Enter line, advance in the line",5,320);
+  ctx.fillText("Up/Down arrow - switch lines",5,340);
   if (REWARD_TIC > 0){
     ctx.font="30px Georgia";
     ctx.fillStyle = "#008000";
