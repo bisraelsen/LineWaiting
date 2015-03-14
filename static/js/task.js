@@ -103,14 +103,14 @@ if (INTER_REWARDS) {
   "instructions/instruct-p5.html",
   "instructions/instruct-p6_2.html"
   ];
-} 
+}
 
 /********************
 * HTML manipulation
 *
-* All HTML files in the templates directory are requested 
+* All HTML files in the templates directory are requested
 * from the server when the PsiTurk object is created above. We
-* need code to get those pages from the PsiTurk object and 
+* need code to get those pages from the PsiTurk object and
 * insert them into the document.
 *
 ********************/
@@ -180,6 +180,7 @@ function init() {
   console.log("Bye from init!");
 }
 
+
 //Draws the current state of the game to the screen
 function draw(){
   //console.log("Hi from draw!");
@@ -194,23 +195,13 @@ function draw(){
     for (j=0;j<LINES[i].Persons.length;j++){
       if (LINES[i].Persons[j].PC){
 	ctx.drawImage(IMG_PLAYER,LINES[i].Persons[j].X,LINES[i].Persons[j].Y - 10,25,25);
-	///This is legacy code that draws a colored square instead of the little figure
-	/*ctx.fillStyle="#FF0000";
-	*				    ctx.fillRect(LINES[i].Persons[j].X,LINES[i].Persons[j].Y,10,10);
-	*				    ctx.fillStyle="#000000";*/
       } else {
 	ctx.drawImage(IMG_PERSON,LINES[i].Persons[j].X,LINES[i].Persons[j].Y - 10,25,25);
-	///This is legacy code that draws a colored square instead of the little figure
-	//ctx.fillRect(LINES[i].Persons[j].X,LINES[i].Persons[j].Y,10,10);
       }
     }
   }
   if (SELECTING) {
     ctx.drawImage(IMG_PLAYER,PLAYER.X,PLAYER.Y - 10,25,25);
-    ///This is legacy code that draws a colored square instead of the little figure
-    /*ctx.fillStyle="#FF0000";
-    *		    ctx.fillRect(PLAYER.X,PLAYER.Y,10,10);
-    *		    ctx.fillStyle="#000000";*/
   }
   ctx.stroke();
   ctx.beginPath();
@@ -254,7 +245,7 @@ function draw(){
     ctx.fillStyle ="#000000";
   }
   ctx.stroke();
-  
+
   //console.log("Bye from draw!");
 }
 function getTime(){
@@ -339,7 +330,7 @@ function animate(){
       LINES[i].isServicing = true;
     }
     /*if(LINES[i].isArriving){
-    *			    if (LINES[i].Persons.length < LINE_LENGTHS[i] + 1) { 
+    *			    if (LINES[i].Persons.length < LINE_LENGTHS[i] + 1) {
     *				    LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+30,LINES[i].Y));
     *				    LINES[i].isArriving = false;
   }
@@ -466,9 +457,9 @@ function animate(){
 	LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
       }
     }
-    
+
     PLAYER.line -= 1;
-    
+
     PLAYER.position = LINES[PLAYER.line].Persons.length;
     PLAYER.X = LINES[PLAYER.line].Persons[PLAYER.position-1].X+30;
     PLAYER.Y = LINES[PLAYER.line].Y;
@@ -477,12 +468,12 @@ function animate(){
     PLAYER_UP = false;
   }
   //If the player can't currently change lines because the destination line is in motion
-  // give some visual feedback that the button press was received 
+  // give some visual feedback that the button press was received
   else if (PLAYER_UP && PLAYER.line != 0 && LINES[PLAYER.line-1].isServicing && !SELECTING) {
     PLAYER.Y -= 1;
   }
   //If the player is in the waiting area, no need to check to see if destination line is in
-  // motion, so just go ahead and move the player 
+  // motion, so just go ahead and move the player
   else if (PLAYER_UP && SELECTING && PLAYER.line != 0) {
     PLAYER.line -= 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
@@ -503,23 +494,23 @@ function animate(){
 	LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
       }
     }
-    
+
     PLAYER.line += 1;
-    
+
     PLAYER.position = LINES[PLAYER.line].Persons.length;
     PLAYER.X = LINES[PLAYER.line].Persons[PLAYER.position-1].X+30;
     PLAYER.Y = LINES[PLAYER.line].Y;
     LINES[PLAYER.line].addPerson(PLAYER);
     recordLineData()
     PLAYER_DOWN = false;
-  } 
+  }
   //If the player can't currently change lines because the destination line is in motion
-  // give some visual feedback that the button press was received 
+  // give some visual feedback that the button press was received
   else if (PLAYER_DOWN && PLAYER.line != 2 && LINES[PLAYER.line+1].isServicing && !SELECTING) {
     PLAYER.Y += 1;
-  } 
+  }
   //If the player is in the waiting area, no need to check to see if destination line is in
-  // motion, so just go ahead and move the player 
+  // motion, so just go ahead and move the player
   else if (PLAYER_DOWN && SELECTING && PLAYER.line != 2) {
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
@@ -561,7 +552,7 @@ function doKeyDown(evt) {
     psiTurk.finishInstructions();
     // Load the stage.html snippet into the body of the page, the stage.html has "myCanvas"
     psiTurk.showPage('stage.html');
-    
+
     var c = document.getElementById("myCanvas");
     var ctx = c.getContext("2d");
     ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
@@ -593,7 +584,7 @@ function doKeyDown(evt) {
     recordLineData()
     SELECTING = false;
   }
-  
+
 }
 function end_game(){
   line_record = JSON.stringify(LINE_RECORD);
@@ -603,16 +594,16 @@ function end_game(){
   key_record = JSON.stringify(KEY_RECORD);
   key_time_record = JSON.stringify(KEY_TIME_RECORD);
   player_score = PLAYER_SCORE;
-  
+
   //Display "saving" on the board
   var c = document.getElementById("myCanvas");
   var ctx = c.getContext("2d");
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
-  
+
   ctx.font="40px Georgia";
   ctx.fillStyle = "#008000";
   ctx.fillText("Saving Data...",230,125);
-  
+
   ctx.stroke();
   // write data
   psiTurk.recordTrialData({'phase':"GAME",
@@ -625,7 +616,7 @@ function end_game(){
 				    'Score':player_score}
 				  );
   // save data to server, compute bonus
-  
+
   console.log('quitting')
   save2Server();
 };
