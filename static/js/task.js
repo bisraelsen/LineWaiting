@@ -25,6 +25,10 @@ var REWARD = 0;
 var PLAYER;
 var SELECTING = true;
 var PLAYER_LEFT = false;
+var PLAYER_START_X = 580;
+var GAME_BOARD_HEIGHT = 200;
+var SCORE_POS_Y = 40;
+var GAME_BOARD_Y = SCORE_POS_Y + 50;
 var CHA_CHING = new Audio('../static/media/Cha-Ching.mp3');
 var IMG_PERSON = new Image();
 var IMG_PLAYER = new Image();
@@ -61,7 +65,7 @@ else{
   //console.log("condittion is " + INTER_REWARDS);
 }
 //force condition to get balanced data
-//INTER_REWARDS = true;
+INTER_REWARDS = true;
 // set condition in database
 psiTurk.taskdata.set('cond',INTER_REWARDS)
 
@@ -163,7 +167,7 @@ function init() {
   console.log("condition is " + INTER_REWARDS);
   var c = document.getElementById("myCanvas");
   for (i=0;i<NUM_LINES;i++) {
-    LINES.push(new Line(c.height/NUM_LINES/2*(i+1)));
+    LINES.push(new Line(GAME_BOARD_Y + GAME_BOARD_HEIGHT/NUM_LINES*(i)));
     ARRIVE.push(Math.round(Math.random()*INTERVAL-INTERVAL_SFT));
     SERVICE.push(Math.round(Math.random()*INTERVAL-INTERVAL_SFT));
     for (j=0;j<LINE_LENGTHS[i];j++) {
@@ -174,7 +178,7 @@ function init() {
   IMG_PERSON.src = "../static/images/stick_figure.jpg";
   IMG_PLAYER.src = "../static/images/stick_figure_red.jpg";
   L = Math.ceil(Math.random() * 3) - 1;
-  PLAYER = new Player(535,LINES[L].Y,L,-1);
+  PLAYER = new Player(PLAYER_START_X,LINES[L].Y,L,-1);
 
   animate()
   console.log("Bye from init!");
@@ -186,6 +190,14 @@ function draw(){
   //console.log("Hi from draw!");
   var c = document.getElementById("myCanvas");
   var ctx = c.getContext("2d");
+
+  // Positions of game board elements
+  var y_score = SCORE_POS_Y;
+  var y_boxes = GAME_BOARD_Y;
+  var h_boxes = GAME_BOARD_HEIGHT;
+  var w_boxes = 30;
+  var y_ctrls = y_boxes + h_boxes + 30;
+  var x_start = PLAYER_START_X;
   ctx.beginPath();
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
   ctx.fillStyle="#000000";
@@ -207,41 +219,50 @@ function draw(){
   ctx.beginPath();
   ctx.font="40px Georgia";
   ctx.fillStyle ="#000000";
-  ctx.fillText("Score:",5,40);
-  ctx.fillText(PLAYER_SCORE.toString(),140,41);
+  ctx.fillText("Score:",5,y_score);
+  ctx.fillText(PLAYER_SCORE.toString(),140,y_score+1);
   getTime();
   TIME_REMAINING_RND = Math.round(TIME_REMAINING/1000)
   ctx.font="25px Georgia";
-  ctx.fillText("Seconds Remaining:",260,38);
+  ctx.fillText("Seconds Remaining:",x_start-270,y_score-2);
   ctx.font="40px Georgia";
-  ctx.fillText(TIME_REMAINING_RND.toString(),490,41);
+  ctx.fillText(TIME_REMAINING_RND.toString(),x_start-40,y_score+1);
   ctx.font="20px Georgia";
-  ctx.fillText("Controls:",5,300);
-  ctx.fillText("Left Arrow - Enter line, advance in the line",5,320);
-  ctx.fillText("Up/Down arrow - switch lines",5,340);
+  ctx.fillText("Controls:",5,y_ctrls);
+  ctx.fillText("Left Arrow - Enter line, advance in the line",5,y_ctrls+20);
+  ctx.fillText("Up/Down arrow - switch lines",5,y_ctrls+40);
   if (REWARD_TIC > 0){
-    ctx.font="30px Georgia";
+    ctx.font="50px Georgia";
     ctx.fillStyle = "#008000";
-    ctx.fillText("+",210,39);
-    ctx.fillText(REWARD.toString(),230,39);
+    ctx.fillText("+",210,y_score-1);
+    ctx.fillText(REWARD.toString(),245,y_score+1);
     ctx.fillStyle ="#000000";
   }
   ctx.strokeStyle="#000000";
-  ctx.strokeRect(530,50,30,200);
+  ctx.strokeRect(x_start,y_boxes-25,w_boxes,h_boxes);
   ctx.strokeStyle="#008080";
-  ctx.strokeRect(54,50,30,200);
+  ctx.strokeRect(54,y_boxes-25,w_boxes,h_boxes);
   ctx.stroke();
   ctx.beginPath();
   for (i=0;i<NUM_LINES;i++){
-    ctx.clearRect(525,LINES[i].Y-10,10,30);
-    //ctx.clearRect(49,LINES[i].Y+10,10,30);
-    //ctx.clearRect(75,LINES[i].Y-10,10,30);
+    // make slots in the waiting area
+    ctx.clearRect(x_start-5,LINES[i].Y-10,10,30);
   }
-  if (INTER_REWARD_TIC > 0) {
+  if (INTER_REWARD_TIC > 0 && INTER_REWARD < 10) {
+    // small text for inter-reward
     ctx.font="20px Georgia";
     ctx.fillStyle = "#008000";
     ctx.fillText("+",PLAYER.X + 20,PLAYER.Y - 15);
     ctx.fillText(INTER_REWARD.toString(),PLAYER.X + 28,PLAYER.Y - 15);
+    ctx.fillStyle ="#000000";
+  }
+  if (INTER_REWARD_TIC >= 10) {
+    //bigger text for inter reward
+    ctx.clearRect(PLAYER.X+ 21,PLAYER.Y - 11,20,-20);
+    ctx.font="50px Georgia";
+    ctx.fillStyle = "#008000";
+    ctx.fillText("+",PLAYER.X + 20,PLAYER.Y - 15);
+    ctx.fillText(INTER_REWARD.toString(),PLAYER.X + 45,PLAYER.Y - 15);
     ctx.fillStyle ="#000000";
   }
   ctx.stroke();
@@ -329,12 +350,6 @@ function animate(){
     if (SERVICE[i] == TIC){
       LINES[i].isServicing = true;
     }
-    /*if(LINES[i].isArriving){
-    *			    if (LINES[i].Persons.length < LINE_LENGTHS[i] + 1) {
-    *				    LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+30,LINES[i].Y));
-    *				    LINES[i].isArriving = false;
-  }
-  }*/
     //If a line needs to move up and the player is not in it
     // simply move up the entire line
     if(LINES[i].isServicing && !SELECTING && PLAYER.line != i ){
@@ -403,7 +418,7 @@ function animate(){
 	PLAYER.position = -1;
 	SELECTING = true;
 	PLAYER_LEFT = false;
-	PLAYER.X = 535;
+	PLAYER.X = PLAYER_START_X;
 	PLAYER.Y = LINES[PLAYER.line].Y;
 	//draw();
       }
