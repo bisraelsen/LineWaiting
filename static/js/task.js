@@ -65,7 +65,7 @@ else{
   //console.log("condittion is " + INTER_REWARDS);
 }
 //force condition to get balanced data
-INTER_REWARDS = true;
+//INTER_REWARDS = true;
 // set condition in database
 psiTurk.taskdata.set('cond',INTER_REWARDS)
 
