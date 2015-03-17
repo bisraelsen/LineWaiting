@@ -65,7 +65,7 @@ else{
   //console.log("condittion is " + INTER_REWARDS);
 }
 //force condition to get balanced data
-//INTER_REWARDS = true;
+INTER_REWARDS = true;
 // set condition in database
 psiTurk.taskdata.set('cond',INTER_REWARDS)
 
@@ -229,15 +229,58 @@ function draw(){
   ctx.fillText(TIME_REMAINING_RND.toString(),x_start-40,y_score+1);
   ctx.font="20px Georgia";
   ctx.fillText("Controls:",5,y_ctrls);
-  ctx.fillText("Left Arrow - Enter line, advance in the line",5,y_ctrls+20);
-  ctx.fillText("Up/Down arrow - switch lines",5,y_ctrls+40);
-  if (REWARD_TIC > 0){
-    ctx.font="50px Georgia";
-    ctx.fillStyle = "#008000";
-    ctx.fillText("+",210,y_score-1);
-    ctx.fillText(REWARD.toString(),245,y_score+1);
+  ctx.fillText("- Left Arrow - Enter line, advance in the line",5,y_ctrls+20);
+  ctx.fillText("- Up/Down arrow - switch lines",5,y_ctrls+40);
+  if (INTER_REWARDS > 0){
+    ctx.fillText("- The green point total you see after each move is a prediction of the",5,y_ctrls+60)
+    ctx.fillText("  value of that move if you make it to the front of the line.",5,y_ctrls+80)
+  }
+
+  //define animation timing
+  lv1 = 100;
+  lv2 = 100;
+  lv3 = 200;
+  lv4 = 0;
+  lv5 = 400;
+  // Find where the animation needs to begin
+  for (i=0; i<NUM_LINES; i++){
+    if(REWARD == LINE_REWARDS[i]){
+      score_startY = LINES[i].Y + 10
+    }
+  }
+  score_endY = LINES[1].Y;
+  score_startX = 5;
+  score_endX = x_start/2;
+  // Animate the score
+  if (REWARD_TIC > lv1 && REWARD_TIC < lv2){
+    ctx.font="20px Georgia";
+    ctx.fillStyle="#000000";
+    ctx.fillText("+",score_startX,score_startY);
+    ctx.fillText(REWARD.toString(),score_startX,score_startY);
     ctx.fillStyle ="#000000";
   }
+  if (REWARD_TIC > lv2 && REWARD_TIC < lv3){
+    ctx.font="40px Georgia";
+    ctx.fillStyle="#000000";
+    ctx.fillText("+",x_start/4 - 20,score);
+    ctx.fillText(REWARD.toString(),x_start/2-25,LINES[1].Y+25);
+    ctx.fillStyle ="#000000";
+  }
+  if (REWARD_TIC > lv3 && REWARD_TIC < lv4){
+    ctx.font="80px Georgia";
+    ctx.fillStyle="#000000";
+    ctx.fillText("+",x_start/3 - 40,LINES[1].Y+25);
+    ctx.fillText(REWARD.toString(),x_start/2-25,LINES[1].Y+25);
+    ctx.fillStyle ="#000000";
+  }
+  if (REWARD_TIC > lv4){
+    ctx.font="160px Georgia";
+    ctx.fillStyle="#000000";
+    ctx.fillText("+",x_start/2 - 120,LINES[1].Y+25);
+    ctx.fillText(REWARD.toString(),x_start/2-25,LINES[1].Y+25);
+    ctx.fillStyle ="#000000";
+  }
+
   ctx.strokeStyle="#000000";
   ctx.strokeRect(x_start,y_boxes-25,w_boxes,h_boxes);
   ctx.strokeStyle="#008080";
@@ -248,7 +291,12 @@ function draw(){
     // make slots in the waiting area
     ctx.clearRect(x_start-5,LINES[i].Y-10,10,30);
   }
-  if (INTER_REWARD_TIC > 0 && INTER_REWARD < 10) {
+
+  // Animate the hint message
+  lv1 = 0;
+  lv2 = 2.5;
+  lv3 = 5;
+  if (INTER_REWARD_TIC > lv1 && INTER_REWARD_TIC < lv2) {
     // small text for inter-reward
     ctx.font="20px Georgia";
     ctx.fillStyle = "#008000";
@@ -256,9 +304,16 @@ function draw(){
     ctx.fillText(INTER_REWARD.toString(),PLAYER.X + 28,PLAYER.Y - 15);
     ctx.fillStyle ="#000000";
   }
-  if (INTER_REWARD_TIC >= 10) {
+  if (INTER_REWARD_TIC >= lv2 && INTER_REWARD_TIC < lv3) {
     //bigger text for inter reward
-    ctx.clearRect(PLAYER.X+ 21,PLAYER.Y - 11,20,-20);
+    ctx.font="35px Georgia";
+    ctx.fillStyle = "#008000";
+    ctx.fillText("+",PLAYER.X + 20,PLAYER.Y - 15);
+    ctx.fillText(INTER_REWARD.toString(),PLAYER.X + 45,PLAYER.Y - 15);
+    ctx.fillStyle ="#000000";
+  }
+  if (INTER_REWARD_TIC >= lv3) {
+    //bigger text for inter reward
     ctx.font="50px Georgia";
     ctx.fillStyle = "#008000";
     ctx.fillText("+",PLAYER.X + 20,PLAYER.Y - 15);
