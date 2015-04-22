@@ -11,10 +11,10 @@ var psiTurk = PsiTurk(uniqueId, adServerLoc);
 //// GAME GLOBAL VARS
 ////
 var PLAYER_SCORE = 0;	//Keeps track of the players score
-var NUM_LINES = 3;	//Change to add more lines to the program 3 works well, I think
+var NUM_LINES = 2;	//Change to add more lines to the program 3 works well, I think
 var LINES = [];		//This is an array that will be used to keep track of all the persons in each line
-var LINE_REWARDS = [9, 24, 60];	//This sets the reward for each line. If you increase the NUM_LINES, add additional entries here
-var LINE_LENGTHS = [3, 6, 12];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
+var LINE_REWARDS = [9, 60];	//This sets the reward for each line. If you increase the NUM_LINES, add additional entries here
+var LINE_LENGTHS = [2, 12];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
 ///These control the intermediate reward function
 var INTER_REWARDS = false;	//Set this to true if you want the estimate intermediate reward to display, false if you don't
 var INTER_REWARD = 0;
@@ -36,7 +36,7 @@ var ARRIVE = [];
 var SERVICE = [];
 var ANIMATE_INTERVAL = 20; //rate at which the animate function is called in ms
 var INTERVAL = 50;// INTERVAL * ANIMATE_INTERVAL is the rate at which lines advance
-var INTERVAL_SFT = 0.15* INTERVAL;//shift to the INTERVAL for random assignment of line advancement
+var INTERVAL_SFT = 0.0* INTERVAL;//shift to the INTERVAL for random assignment of line advancement
 var PLAYER_UP = false;
 var PLAYER_DOWN = false;
 var START_TIME = 0;
@@ -177,7 +177,7 @@ function init() {
   }
   IMG_PERSON.src = "../static/images/stick_figure.jpg";
   IMG_PLAYER.src = "../static/images/stick_figure_red.jpg";
-  L = Math.ceil(Math.random() * 3) - 1;
+  L = Math.ceil(Math.random() * NUM_LINES) - 1;
   PLAYER = new Player(PLAYER_START_X,LINES[L].Y,L,-1);
 
   animate()
@@ -359,20 +359,14 @@ function animate(){
   if (TIC > INTERVAL) {
     TIC = 0;
     for (i=0;i<NUM_LINES;i++){
+      // If line needs another person and player is not in the line
       if (LINES[i].Persons.length < LINE_LENGTHS[i] && PLAYER.line != i) {
 	LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+30,LINES[i].Y));
       }
-      /*if (LINES[i].Persons.length < (LINE_LENGTHS[i] + 1) && PLAYER.line == i) {
-      *				    LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+30,LINES[i].Y));
-    }*/
+      // If line has too many people and player is not in the line
       if (LINES[i].Persons.length > LINE_LENGTHS[i] && PLAYER.line != i) {
 	LINES[i].Persons.pop();
       }
-      /*if (LINES[i].Persons.length > (LINE_LENGTHS[i] + 1) && PLAYER.line == i) {
-      *				    if (PLAYER.position != (LINES[PLAYER.line].Persons.length-1)){
-      *						    LINES[i].Persons.pop();
-    }
-    }*/
       ARRIVE[i] = 0; //(Math.round(Math.random()*(INTERVAL-INTERVAL_SFT)));
       SERVICE[i] = 0; // (Math.round(Math.random()*(INTERVAL-INTERVAL_SFT)));
     }
@@ -398,6 +392,7 @@ function animate(){
   //Walk through the lines and check if any of them is scheduled
   // for a service event or an arrival
   for (i=0;i<NUM_LINES;i++){
+    if (LINE_LENGTHS[i] != 0) {}
     if (ARRIVE[i] == TIC){
       LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+30,LINES[i].Y));
       //LINES[i].isArriving = false;
@@ -407,7 +402,7 @@ function animate(){
     }
     //If a line needs to move up and the player is not in it
     // simply move up the entire line
-    if(LINES[i].isServicing && !SELECTING && PLAYER.line != i ){
+    if(LINES[i].isServicing && !SELECTING && PLAYER.line != i){
       for(j=0;j<LINES[i].Persons.length;j++) {
 	LINES[i].Persons[j].X -= 1;
       }
@@ -430,11 +425,12 @@ function animate(){
       } else {
 	LINES[i].Persons[0].Y += 1;
       }
-      //console.log(LINES[i].Persons[0].X);
+
       if(LINES[i].Persons[1].X == 60) {
-	LINES[i].Persons.shift();
-	LINES[i].isServicing = false;
+	       LINES[i].Persons.shift();
+	       LINES[i].isServicing = false;
       }
+
     }
     //If a line needs to move up and the player is in it, then
     // we need to only move the line up to the player
@@ -469,7 +465,7 @@ function animate(){
 	REWARD = LINE_REWARDS[PLAYER.line];
 	REWARD_TIC = 1;
 	CHA_CHING.play();
-	PLAYER.line = Math.ceil(Math.random() * 3) - 1;
+	PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
 	PLAYER.position = -1;
 	SELECTING = true;
 	PLAYER_LEFT = false;
