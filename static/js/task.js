@@ -14,7 +14,7 @@ var PLAYER_SCORE = 0;	//Keeps track of the players score
 var NUM_LINES = 2;	//Change to add more lines to the program 3 works well, I think
 var LINES = [];		//This is an array that will be used to keep track of all the persons in each line
 var LINE_REWARDS = [9, 60];	//This sets the reward for each line. If you increase the NUM_LINES, add additional entries here
-var LINE_LENGTHS = [2, 12];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
+var LINE_LENGTHS = [0, 12];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
 ///These control the intermediate reward function
 var INTER_REWARDS = false;	//Set this to true if you want the estimate intermediate reward to display, false if you don't
 var INTER_REWARD = 0;
@@ -28,6 +28,7 @@ var PLAYER_LEFT = false;
 var PLAYER_START_X = 580;
 var PERSON_X_SPACING = 30; // X distance between people in lines
 var PERSON_Y_OFFSET = 20; // distance to offset in Y direction when servicing
+var PERSON_FRONT_OF_LINE = 60; //X location of the front of the line
 var GAME_BOARD_HEIGHT = 200;
 var SCORE_POS_Y = 40;
 var GAME_BOARD_Y = SCORE_POS_Y + 50;
@@ -167,12 +168,24 @@ Line.prototype.addPerson = function(P) {
 Line.prototype.getNextXPos = function(){
   if (this.Persons.length == 0) {
     // no body in the line
-    xpos = PERSON_X_SPACING;
+    xpos = PERSON_FRONT_OF_LINE;
   } else {
     xpos = this.Persons[this.Persons.length-1].X + PERSON_X_SPACING
   }
 
   return xpos;
+}
+
+Line.prototype.getAtFront = function(){
+  // If the line only has one person
+  if(typeof LINES[i].Persons[1] == 'undefined'){
+    if (LINES[i].Persons[0].X <= PERSON_FRONT_OF_LINE){
+      return true;
+    }
+  } else if(LINES[i].Persons[1].X <= PERSON_FRONT_OF_LINE) {
+    return true;
+  }
+  return false;
 }
 
 /////
@@ -417,7 +430,22 @@ function animate(){
   // for a service event or an arrival
   for (i=0;i<NUM_LINES;i++){
     if (LINE_LENGTHS[i] == 0) {
+      if (PLAYER.line == i && !SELECTING) {
+        console.log("Reward!");
+        LINES[i].isServicing = false;
+        LINES[i].Persons.shift();
+        LINES[i].Persons.pop();
 
+        REWARD = LINE_REWARDS[PLAYER.line];
+        REWARD_TIC = 1;
+        CHA_CHING.play();
+        PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
+        PLAYER.position = -1;
+        SELECTING = true;
+        PLAYER_LEFT = false;
+        PLAYER.X = PLAYER_START_X;
+        PLAYER.Y = LINES[PLAYER.line].Y;
+      }
     } else {
       if (ARRIVE[i] == TIC){
         // time for someone to be added
@@ -443,10 +471,10 @@ function animate(){
            // shift the first person in the Y direction to show they are leaving
   	       LINES[i].Persons[0].Y += 1;
         }
-        if(LINES[i].Persons[1].X <= 60) {
+        if(LINES[i].getAtFront()) {
            // remove person at position 0 and shift everything left
   	       LINES[i].Persons.shift();
-           
+
            // line no longer servicing
   	       LINES[i].isServicing = false;
         }
@@ -464,7 +492,7 @@ function animate(){
   	       LINES[i].Persons[0].Y += 1;
         }
 
-        if(LINES[i].Persons[1].X <= 60) {
+        if(LINES[i].getAtFront()) {
           // remove person at position 0 and shift everything left
           LINES[i].Persons.shift();
           // line no longer servicing
@@ -485,7 +513,6 @@ function animate(){
         	} else {
         	  LINES[i].Persons[0].Y += 1;
         	}
-        	//console.log(LINES[i].Persons[0].X);
         	if(LINES[i].Persons[0].X < 22) {
         	  LINES[i].Persons.shift();
         	  PLAYER.position -= 1;
@@ -494,7 +521,7 @@ function animate(){
         	  console.log("Player pos");
         	  console.log(PLAYER.position);
         	}
-        } else if (PLAYER.position == 0 && PLAYER.X < 61) {
+        } else if (PLAYER.position == 0 && PLAYER.X <= PERSON_FRONT_OF_LINE) {
           	console.log("Reward!");
           	LINES[i].isServicing = false;
           	LINES[i].Persons.shift();
@@ -520,7 +547,7 @@ function animate(){
       if(PLAYER_LEFT && PLAYER.position != 0 && (LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PERSON_X_SPACING && !LINES[i].isServicing) {
         // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
         setTimeout(playerMoveLeft(),2);
-      } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X > 60 && !LINES[i].isServicing) {
+      } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X >= 60 && !LINES[i].isServicing) {
         console.log("Last step!");
         PLAYER.X = 60;
         for(j=1;j<LINES[PLAYER.line].Persons.length;j++) {
@@ -540,15 +567,15 @@ function animate(){
         for(j=PLAYER.position+1;j<LINES[PLAYER.line].Persons.length;j++) {
   	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
         }
-      } else if (PLAYER.position == 0 && PLAYER.X > 60 && TIC > (INTERVAL - 5) && !PLAYER_LEFT) {
+      } else if (PLAYER.position == 0 && PLAYER.X > PERSON_FRONT_OF_LINE && TIC > (INTERVAL - 5) && !PLAYER_LEFT) {
         console.log("Slacking at the front!");
         recordTrialData()
-        LINES[PLAYER.line].Persons[PLAYER.position + 1].X = 60;
+        LINES[PLAYER.line].Persons[PLAYER.position + 1].X = PERSON_FRONT_OF_LINE;
         LINES[PLAYER.line].Persons[0] = LINES[PLAYER.line].Persons[1];
         LINES[PLAYER.line].Persons[1] = PLAYER;
         PLAYER.position = 1;
         for(j=2;j<LINES[PLAYER.line].Persons.length;j++) {
-  	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+  	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].getNextXPos();
         }
       }
     }
@@ -559,21 +586,21 @@ function animate(){
     if (PLAYER.position != 0) {
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
-	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X+30;
+	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].getNextXPos();
       }
     }
     if (PLAYER.position == 0) {
       LINES[PLAYER.line].Persons.shift();
       LINES[PLAYER.line].Persons[0].X = 60;
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
-	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].getNextXPos();
       }
     }
 
     PLAYER.line -= 1;
 
     PLAYER.position = LINES[PLAYER.line].Persons.length;
-    PLAYER.X = LINES[PLAYER.line].Persons[PLAYER.position-1].X+30;
+    PLAYER.X = LINES[PLAYER.line].getNextXPos();
     PLAYER.Y = LINES[PLAYER.line].Y;
     LINES[PLAYER.line].addPerson(PLAYER);
     recordLineData()
@@ -601,7 +628,7 @@ function animate(){
     }
     if (PLAYER.position == 0) {
       LINES[PLAYER.line].Persons.shift();
-      LINES[PLAYER.line].Persons[0].X = 60;
+      LINES[PLAYER.line].Persons[0].X = PERSON_FRONT_OF_LINE;
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
 	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
       }
@@ -692,7 +719,7 @@ function doKeyDown(evt) {
   }
   if(evt.keyCode == 37 && SELECTING && !LINES[PLAYER.line].isServicing) {
     PLAYER.position = LINES[PLAYER.line].Persons.length;
-    PLAYER.X = LINES[PLAYER.line].Persons[PLAYER.position-1].X+30;
+    PLAYER.X = LINES[PLAYER.line].getNextXPos();
     LINES[PLAYER.line].addPerson(PLAYER);
     recordLineData()
     SELECTING = false;
