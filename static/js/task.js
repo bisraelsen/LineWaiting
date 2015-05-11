@@ -171,7 +171,7 @@ Line.prototype.getNextXPos = function(){
   } else {
     xpos = this.Persons[this.Persons.length-1].X + PERSON_X_SPACING
   }
-  
+
   return xpos;
 }
 
@@ -384,11 +384,11 @@ function animate(){
     TIC = 0;
     for (i=0;i<NUM_LINES;i++){
       // If line needs another person and player is not in the line
-      if (LINES[i].Persons.length < LINE_LENGTHS[i] && PLAYER.line != i) {
+      if (LINES[i].Persons.length < LINE_LENGTHS[i] && (PLAYER.line != i || SELECTING)) {
 	       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
       }
       // If line has too many people and player is not in the line
-      if (LINES[i].Persons.length > LINE_LENGTHS[i] && PLAYER.line != i) {
+      if (LINES[i].Persons.length > LINE_LENGTHS[i] && (PLAYER.line != i || SELECTING)) {
 	       LINES[i].Persons.pop();
       }
     }
@@ -443,9 +443,10 @@ function animate(){
            // shift the first person in the Y direction to show they are leaving
   	       LINES[i].Persons[0].Y += 1;
         }
-        if(LINES[i].Persons[1].X == 60) {
+        if(LINES[i].Persons[1].X <= 60) {
            // remove person at position 0 and shift everything left
   	       LINES[i].Persons.shift();
+           
            // line no longer servicing
   	       LINES[i].isServicing = false;
         }
@@ -463,7 +464,7 @@ function animate(){
   	       LINES[i].Persons[0].Y += 1;
         }
 
-        if(LINES[i].Persons[1].X == 60) {
+        if(LINES[i].Persons[1].X <= 60) {
           // remove person at position 0 and shift everything left
           LINES[i].Persons.shift();
           // line no longer servicing
