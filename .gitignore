@@ -1,0 +1,9 @@
+# History
+.psiturk_history
+
+# Python config
+.pyc
+
+# Database
+.db
+.log
