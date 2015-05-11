@@ -338,19 +338,22 @@ function draw(){
 
   //console.log("Bye from draw!");
 }
+
+//Update the time calculation
 function getTime(){
-  //Update the time calculation
   TIME_REMAINING = TIME*1000 - (new Date().getTime()- START_TIME);
 }
+
+//For recording line history data
 function recordRewardData(){
-  //For recording line history data
   REWARD_RECORD.push(REWARD);
   getTime();
   REWARD_RECORD.push(TIME_REMAINING);
   console.log(REWARD_RECORD);
 };
+
+//For recording line history data
 function recordLineData(){
-  //For recording line history data
   LINE_RECORD.push(PLAYER.line);
   POS_RECORD.push(PLAYER.position);
   getTime();
@@ -358,13 +361,15 @@ function recordLineData(){
   console.log(LINE_RECORD);
   console.log(POS_RECORD);
 };
+
+//For recording key stroke history
 function recordKeyData(stroke){
-  //For recording key stroke history
   KEY_RECORD.push(stroke);
   getTime();
   KEY_TIME_RECORD.push(TIME_REMAINING);
   //console.log(LINE_RECORD);
 };
+
 //This is called repeatedly to update the state of the game and
 // animate the lines
 function animate(){
