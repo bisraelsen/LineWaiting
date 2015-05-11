@@ -1,9 +1,9 @@
 # History
-.psiturk_history
+*.psiturk_history
 
 # Python config
-.pyc
+*.pyc
 
 # Database
-.db
-.log
+*.db
+*.log
