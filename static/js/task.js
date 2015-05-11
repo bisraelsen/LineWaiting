@@ -165,9 +165,13 @@ Line.prototype.addPerson = function(P) {
 
 //This function gets the x position to add a new figure
 Line.prototype.getNextXPos = function(){
-  xpos = this.Persons.length * PERSON_X_SPACING + PERSON_X_SPACING;
-  //console.log("get position")
-  //console.log("positions is:" + xpos)
+  if (this.Persons.length == 0) {
+    // no body in the line
+    xpos = PERSON_X_SPACING;
+  } else {
+    xpos = this.Persons[this.Persons.length-1].X + PERSON_X_SPACING
+  }
+  
   return xpos;
 }
 
@@ -420,42 +424,54 @@ function animate(){
         LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
       }
       if (SERVICE[i] == TIC){
+        // time for someone to exit the line
         LINES[i].isServicing = true;
       }
+
       //If a line needs to move up and the player is not in it
       // simply move up the entire line
       if(LINES[i].isServicing && !SELECTING && PLAYER.line != i){
+        // Player not selecting, but not in LINES[i]
         for(j=0;j<LINES[i].Persons.length;j++) {
           // move the persons to the left
   	       LINES[i].Persons[j].X -= 1;
         }
         if (LINES[i].Persons[0].Y == LINES[i].Y + PERSON_Y_OFFSET) {
-           // if the person is already shifted 20 move in the X direction
+           // if the person is already shifted in the Y direction move in the X direction
   	       LINES[i].Persons[0].X -= 1;
         } else {
            // shift the first person in the Y direction to show they are leaving
   	       LINES[i].Persons[0].Y += 1;
         }
         if(LINES[i].Persons[1].X == 60) {
+           // remove person at position 0 and shift everything left
   	       LINES[i].Persons.shift();
-  	        LINES[i].isServicing = false;
+           // line no longer servicing
+  	       LINES[i].isServicing = false;
         }
       } else if (LINES[i].isServicing && SELECTING) {
+        // Player is selecting line
         for(j=0;j<LINES[i].Persons.length;j++) {
+          // move the persons to the left
   	       LINES[i].Persons[j].X -= 1;
         }
         if (LINES[i].Persons[0].Y == LINES[i].Y + PERSON_Y_OFFSET) {
+          // if the first person is already shifted in the Y direction move in the X direction
   	       LINES[i].Persons[0].X -= 1;
         } else {
+          // shift the first person in the Y direction to show they are leaving
   	       LINES[i].Persons[0].Y += 1;
         }
 
         if(LINES[i].Persons[1].X == 60) {
-  	       LINES[i].Persons.shift();
-  	       LINES[i].isServicing = false;
+          // remove person at position 0 and shift everything left
+          LINES[i].Persons.shift();
+          // line no longer servicing
+          LINES[i].isServicing = false;
         }
 
       }
+
       //If a line needs to move up and the player is in it, then
       // we need to only move the line up to the player
       if(LINES[i].isServicing && PLAYER.line == i && !SELECTING) {
@@ -498,6 +514,7 @@ function animate(){
           	//draw();
         }
       }
+
       //If player has pressed the left arrow and needs to be moved up
       if(PLAYER_LEFT && PLAYER.position != 0 && (LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PERSON_X_SPACING && !LINES[i].isServicing) {
         // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
@@ -510,6 +527,7 @@ function animate(){
   	      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
         }
       }
+
       //If the player slacks off and doesn't move up
       if((PLAYER.position > 0) && TIC > (INTERVAL - 5) && PLAYER.position < (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && ((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > 35)) {
         console.log("Slacking!");
@@ -540,14 +558,14 @@ function animate(){
     if (PLAYER.position != 0) {
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
-	LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X+30;
+	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X+30;
       }
     }
     if (PLAYER.position == 0) {
       LINES[PLAYER.line].Persons.shift();
       LINES[PLAYER.line].Persons[0].X = 60;
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
-	LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
       }
     }
 
@@ -565,26 +583,26 @@ function animate(){
   else if (PLAYER_UP && PLAYER.line != 0 && LINES[PLAYER.line-1].isServicing && !SELECTING) {
     PLAYER.Y -= 1;
   }
-  //If the player is in the waiting area, no need to check to see if destination line is in
-  // motion, so just go ahead and move the player
+  //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
   else if (PLAYER_UP && SELECTING && PLAYER.line != 0) {
     PLAYER.line -= 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_UP = false;
   }
+
   //If the player has pressed the down key and is intending to change lines
   if (PLAYER_DOWN && PLAYER.line != 2 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {
     if (PLAYER.position != 0) {
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
-	LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X+30;
+	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X+30;
       }
     }
     if (PLAYER.position == 0) {
       LINES[PLAYER.line].Persons.shift();
       LINES[PLAYER.line].Persons[0].X = 60;
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
-	LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
       }
     }
 
@@ -597,24 +615,25 @@ function animate(){
     recordLineData()
     PLAYER_DOWN = false;
   }
-  //If the player can't currently change lines because the destination line is in motion
-  // give some visual feedback that the button press was received
+  //If the player can't currently change lines because the destination line is in motion give some visual feedback that the button press was received
   else if (PLAYER_DOWN && PLAYER.line != 2 && LINES[PLAYER.line+1].isServicing && !SELECTING) {
     PLAYER.Y += 1;
   }
-  //If the player is in the waiting area, no need to check to see if destination line is in
-  // motion, so just go ahead and move the player
+  //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
   else if (PLAYER_DOWN && SELECTING && PLAYER.line != 2) {
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_DOWN = false;
   }
+
+  // Check to see if the game is over
   if (TIME_REMAINING <= 0.0 && SENT == 0) {
     //End game and upload results!
     clearTimeout(AnimateHandle) //stop animation
     end_game()
   }
   else{
+    // Game isn't over, keep animating
     AnimateHandle = setTimeout(animate,ANIMATE_INTERVAL);
     draw();
   }
