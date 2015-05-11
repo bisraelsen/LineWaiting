@@ -23,10 +23,11 @@ var TIC = 0;
 var REWARD_TIC = 0;
 var REWARD = 0;
 var PLAYER;
-var SELECTING = true;
+var SELECTING = true; // indicates whether the player is in the line selection area
 var PLAYER_LEFT = false;
 var PLAYER_START_X = 580;
-var PLAYER_X_SPACING = 30;
+var PERSON_X_SPACING = 30; // X distance between people in lines
+var PERSON_Y_OFFSET = 20; // distance to offset in Y direction when servicing
 var GAME_BOARD_HEIGHT = 200;
 var SCORE_POS_Y = 40;
 var GAME_BOARD_Y = SCORE_POS_Y + 50;
@@ -164,7 +165,7 @@ Line.prototype.addPerson = function(P) {
 
 //This function gets the x position to add a new figure
 Line.prototype.getNextXPos = function(){
-  xpos = this.Persons.length * PLAYER_X_SPACING + PLAYER_X_SPACING;
+  xpos = this.Persons.length * PERSON_X_SPACING + PERSON_X_SPACING;
   //console.log("get position")
   //console.log("positions is:" + xpos)
   return xpos;
@@ -388,6 +389,7 @@ function animate(){
       }
     }
   }
+
   //Controls the reward animation at the top of the screen
   if (REWARD_TIC > 0){
     REWARD_TIC += 1;
@@ -406,126 +408,133 @@ function animate(){
       INTER_REWARD = 0;
     }
   }
+
   //Walk through the lines and check if any of them is scheduled
   // for a service event or an arrival
   for (i=0;i<NUM_LINES;i++){
-    if (LINE_LENGTHS[i] != 0) {}
-    if (ARRIVE[i] == TIC){
-      // time for someone to be added
-      LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-    }
-    if (SERVICE[i] == TIC){
-      LINES[i].isServicing = true;
-    }
-    //If a line needs to move up and the player is not in it
-    // simply move up the entire line
-    if(LINES[i].isServicing && !SELECTING && PLAYER.line != i){
-      for(j=0;j<LINES[i].Persons.length;j++) {
-	       LINES[i].Persons[j].X -= 1;
-      }
-      if (LINES[i].Persons[0].Y == LINES[i].Y + 20) {
-	       LINES[i].Persons[0].X -= 1;
-      } else {
-	       LINES[i].Persons[0].Y += 1;
-      }
-      //console.log(LINES[i].Persons[0].X);
-      if(LINES[i].Persons[1].X == 60) {
-	       LINES[i].Persons.shift();
-	        LINES[i].isServicing = false;
-      }
-    } else if (LINES[i].isServicing && SELECTING) {
-      for(j=0;j<LINES[i].Persons.length;j++) {
-	       LINES[i].Persons[j].X -= 1;
-      }
-      if (LINES[i].Persons[0].Y == LINES[i].Y + 20) {
-	       LINES[i].Persons[0].X -= 1;
-      } else {
-	       LINES[i].Persons[0].Y += 1;
-      }
+    if (LINE_LENGTHS[i] == 0) {
 
-      if(LINES[i].Persons[1].X == 60) {
-	       LINES[i].Persons.shift();
-	       LINES[i].isServicing = false;
+    } else {
+      if (ARRIVE[i] == TIC){
+        // time for someone to be added
+        LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
       }
+      if (SERVICE[i] == TIC){
+        LINES[i].isServicing = true;
+      }
+      //If a line needs to move up and the player is not in it
+      // simply move up the entire line
+      if(LINES[i].isServicing && !SELECTING && PLAYER.line != i){
+        for(j=0;j<LINES[i].Persons.length;j++) {
+          // move the persons to the left
+  	       LINES[i].Persons[j].X -= 1;
+        }
+        if (LINES[i].Persons[0].Y == LINES[i].Y + PERSON_Y_OFFSET) {
+           // if the person is already shifted 20 move in the X direction
+  	       LINES[i].Persons[0].X -= 1;
+        } else {
+           // shift the first person in the Y direction to show they are leaving
+  	       LINES[i].Persons[0].Y += 1;
+        }
+        if(LINES[i].Persons[1].X == 60) {
+  	       LINES[i].Persons.shift();
+  	        LINES[i].isServicing = false;
+        }
+      } else if (LINES[i].isServicing && SELECTING) {
+        for(j=0;j<LINES[i].Persons.length;j++) {
+  	       LINES[i].Persons[j].X -= 1;
+        }
+        if (LINES[i].Persons[0].Y == LINES[i].Y + PERSON_Y_OFFSET) {
+  	       LINES[i].Persons[0].X -= 1;
+        } else {
+  	       LINES[i].Persons[0].Y += 1;
+        }
 
-    }
-    //If a line needs to move up and the player is in it, then
-    // we need to only move the line up to the player
-    if(LINES[i].isServicing && PLAYER.line == i && !SELECTING) {
-      if (PLAYER.position != 0) {
-      	for(j=0;j<PLAYER.position;j++) {
-      	  LINES[i].Persons[j].X -= 1;
-      	}
-      	if (LINES[i].Persons[0].Y == LINES[i].Y + 20) {
-      	  LINES[i].Persons[0].X -= 1;
-      	} else {
-      	  LINES[i].Persons[0].Y += 1;
-      	}
-      	//console.log(LINES[i].Persons[0].X);
-      	if(LINES[i].Persons[0].X < 22) {
-      	  LINES[i].Persons.shift();
-      	  PLAYER.position -= 1;
-      	  LINES[i].isServicing = false;
-      	  recordLineData();
-      	  console.log("Player pos");
-      	  console.log(PLAYER.position);
-      	}
-      } else if (PLAYER.position == 0 && PLAYER.X < 61) {
-        	console.log("Reward!");
-        	LINES[i].isServicing = false;
-        	LINES[i].Persons.shift();
-        	LINES[i].Persons.pop();
-        	LINES[i].Persons[0].X = 60;
-        	for (j=1;j<LINES[i].Persons.length;j++){
-        	  LINES[i].Persons[j].X = LINES[i].Persons[j-1].X + PLAYER_X_SPACING;
+        if(LINES[i].Persons[1].X == 60) {
+  	       LINES[i].Persons.shift();
+  	       LINES[i].isServicing = false;
+        }
+
+      }
+      //If a line needs to move up and the player is in it, then
+      // we need to only move the line up to the player
+      if(LINES[i].isServicing && PLAYER.line == i && !SELECTING) {
+        if (PLAYER.position != 0) {
+        	for(j=0;j<PLAYER.position;j++) {
+        	  LINES[i].Persons[j].X -= 1;
         	}
-        	REWARD = LINE_REWARDS[PLAYER.line];
-        	REWARD_TIC = 1;
-        	CHA_CHING.play();
-        	PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
-        	PLAYER.position = -1;
-        	SELECTING = true;
-        	PLAYER_LEFT = false;
-        	PLAYER.X = PLAYER_START_X;
-        	PLAYER.Y = LINES[PLAYER.line].Y;
-        	//draw();
+        	if (LINES[i].Persons[0].Y == LINES[i].Y + PERSON_Y_OFFSET) {
+        	  LINES[i].Persons[0].X -= 1;
+        	} else {
+        	  LINES[i].Persons[0].Y += 1;
+        	}
+        	//console.log(LINES[i].Persons[0].X);
+        	if(LINES[i].Persons[0].X < 22) {
+        	  LINES[i].Persons.shift();
+        	  PLAYER.position -= 1;
+        	  LINES[i].isServicing = false;
+        	  recordLineData();
+        	  console.log("Player pos");
+        	  console.log(PLAYER.position);
+        	}
+        } else if (PLAYER.position == 0 && PLAYER.X < 61) {
+          	console.log("Reward!");
+          	LINES[i].isServicing = false;
+          	LINES[i].Persons.shift();
+          	LINES[i].Persons.pop();
+          	LINES[i].Persons[0].X = 60;
+          	for (j=1;j<LINES[i].Persons.length;j++){
+          	  LINES[i].Persons[j].X = LINES[i].Persons[j-1].X + PERSON_X_SPACING;
+          	}
+          	REWARD = LINE_REWARDS[PLAYER.line];
+          	REWARD_TIC = 1;
+          	CHA_CHING.play();
+          	PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
+          	PLAYER.position = -1;
+          	SELECTING = true;
+          	PLAYER_LEFT = false;
+          	PLAYER.X = PLAYER_START_X;
+          	PLAYER.Y = LINES[PLAYER.line].Y;
+          	//draw();
+        }
+      }
+      //If player has pressed the left arrow and needs to be moved up
+      if(PLAYER_LEFT && PLAYER.position != 0 && (LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PERSON_X_SPACING && !LINES[i].isServicing) {
+        // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
+        setTimeout(playerMoveLeft(),2);
+      } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X > 60 && !LINES[i].isServicing) {
+        console.log("Last step!");
+        PLAYER.X = 60;
+        for(j=1;j<LINES[PLAYER.line].Persons.length;j++) {
+          //loop through players line and shift x position of other people
+  	      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+        }
+      }
+      //If the player slacks off and doesn't move up
+      if((PLAYER.position > 0) && TIC > (INTERVAL - 5) && PLAYER.position < (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && ((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > 35)) {
+        console.log("Slacking!");
+        recordLineData()
+        LINES[PLAYER.line].Persons[PLAYER.position + 1].X = LINES[PLAYER.line].Persons[PLAYER.position - 1].X + 30;
+        LINES[PLAYER.line].Persons[PLAYER.position] = LINES[PLAYER.line].Persons[PLAYER.position + 1];
+        LINES[PLAYER.line].Persons[PLAYER.position + 1] = PLAYER;
+        PLAYER.position += 1;
+        for(j=PLAYER.position+1;j<LINES[PLAYER.line].Persons.length;j++) {
+  	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+        }
+      } else if (PLAYER.position == 0 && PLAYER.X > 60 && TIC > (INTERVAL - 5) && !PLAYER_LEFT) {
+        console.log("Slacking at the front!");
+        recordTrialData()
+        LINES[PLAYER.line].Persons[PLAYER.position + 1].X = 60;
+        LINES[PLAYER.line].Persons[0] = LINES[PLAYER.line].Persons[1];
+        LINES[PLAYER.line].Persons[1] = PLAYER;
+        PLAYER.position = 1;
+        for(j=2;j<LINES[PLAYER.line].Persons.length;j++) {
+  	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+        }
       }
     }
-    //If player has pressed the left arrow and needs to be moved up
-    if(PLAYER_LEFT && PLAYER.position != 0 && (LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PLAYER_X_SPACING && !LINES[i].isServicing) {
-      // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
-      setTimeout(playerMoveLeft(),2);
-    } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X > 60 && !LINES[i].isServicing) {
-      console.log("Last step!");
-      PLAYER.X = 60;
-      for(j=1;j<LINES[PLAYER.line].Persons.length;j++) {
-        //loop through players line and shift x position of other people
-	      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
-      }
-    }
-    //If the player slacks off and doesn't move up
-    if((PLAYER.position > 0) && TIC > (INTERVAL - 5) && PLAYER.position < (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && ((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > 35)) {
-      console.log("Slacking!");
-      recordLineData()
-      LINES[PLAYER.line].Persons[PLAYER.position + 1].X = LINES[PLAYER.line].Persons[PLAYER.position - 1].X + 30;
-      LINES[PLAYER.line].Persons[PLAYER.position] = LINES[PLAYER.line].Persons[PLAYER.position + 1];
-      LINES[PLAYER.line].Persons[PLAYER.position + 1] = PLAYER;
-      PLAYER.position += 1;
-      for(j=PLAYER.position+1;j<LINES[PLAYER.line].Persons.length;j++) {
-	LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
-      }
-    } else if (PLAYER.position == 0 && PLAYER.X > 60 && TIC > (INTERVAL - 5) && !PLAYER_LEFT) {
-      console.log("Slacking at the front!");
-      recordTrialData()
-      LINES[PLAYER.line].Persons[PLAYER.position + 1].X = 60;
-      LINES[PLAYER.line].Persons[0] = LINES[PLAYER.line].Persons[1];
-      LINES[PLAYER.line].Persons[1] = PLAYER;
-      PLAYER.position = 1;
-      for(j=2;j<LINES[PLAYER.line].Persons.length;j++) {
-	LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
-      }
-    }
-  }
+  } // end of for loop to check for service/arrival
+
   //If the player has pressed the UP key and is intending to change lines
   if (PLAYER_UP && PLAYER.line != 0 && !LINES[PLAYER.line-1].isServicing && !SELECTING) {
     if (PLAYER.position != 0) {
