@@ -54,6 +54,8 @@ var GAME_STARTED = 0;
 var AnimateHandle; //will hold the Interval handle so animate can be stopped when code is finishing
 var save2ServerHandle; //handle for the save2Server that will be called until it is successful
 
+var tstWOInstructions = true; //for testing and skipping instructions
+
 //Randomly decide between having intermediate rewards on or off
 if (Math.round(Math.random()) == 0){
   INTER_REWARDS = false;
@@ -88,26 +90,30 @@ var pages = [
 psiTurk.preloadPages(pages);
 
 //change last page based on the experimental condition
-if (INTER_REWARDS) {
-  var instructionPages = [ // add as a list as many pages as you like
-  "instructions/instruct-p1.html",
-  "instructions/instruct-p2.html",
-  "instructions/instruct-p3.html",
-  "instructions/instruct-p4.html",
-  "instructions/instruct-p5.html",
-  "instructions/instruct-p6_1.html",
-  "instructions/instruct-p7.html"
-  ];
-} else {
-  var instructionPages = [ // add as a list as many pages as you like
-  "instructions/instruct-p1.html",
-  "instructions/instruct-p2.html",
-  "instructions/instruct-p3.html",
-  "instructions/instruct-p4.html",
-  "instructions/instruct-p5.html",
-  "instructions/instruct-p6_2.html"
-  ];
-}
+if (!tstWOInstructions)
+  if (INTER_REWARDS) {
+    var instructionPages = [ // add as a list as many pages as you like
+    "instructions/instruct-p1.html",
+    "instructions/instruct-p2.html",
+    "instructions/instruct-p3.html",
+    "instructions/instruct-p4.html",
+    "instructions/instruct-p5.html",
+    "instructions/instruct-p6_1.html",
+    "instructions/instruct-p7.html"
+    ];
+  } else {
+    var instructionPages = [ // add as a list as many pages as you like
+    "instructions/instruct-p1.html",
+    "instructions/instruct-p2.html",
+    "instructions/instruct-p3.html",
+    "instructions/instruct-p4.html",
+    "instructions/instruct-p5.html",
+    "instructions/instruct-p6_2.html"
+    ];
+  }
+  else{
+    var instructionPages = []; //want to run without instructions
+  }
 
 /********************
 * HTML manipulation
