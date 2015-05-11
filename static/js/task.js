@@ -33,8 +33,8 @@ var GAME_BOARD_Y = SCORE_POS_Y + 50;
 var CHA_CHING = new Audio('../static/media/Cha-Ching.mp3');
 var IMG_PERSON = new Image();
 var IMG_PLAYER = new Image();
-var ARRIVE = [];
-var SERVICE = [];
+var ARRIVE = []; // array to store when people should be added to lines
+var SERVICE = []; // array to store when people should exit lines
 var ANIMATE_INTERVAL = 20; //rate at which the animate function is called in ms
 var INTERVAL = 50;// INTERVAL * ANIMATE_INTERVAL is the rate at which lines advance
 var INTERVAL_SFT = 0.0* INTERVAL;//shift to the INTERVAL for random assignment of line advancement
@@ -380,14 +380,12 @@ function animate(){
     for (i=0;i<NUM_LINES;i++){
       // If line needs another person and player is not in the line
       if (LINES[i].Persons.length < LINE_LENGTHS[i] && PLAYER.line != i) {
-	LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+	       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
       }
       // If line has too many people and player is not in the line
       if (LINES[i].Persons.length > LINE_LENGTHS[i] && PLAYER.line != i) {
-	LINES[i].Persons.pop();
+	       LINES[i].Persons.pop();
       }
-      ARRIVE[i] = 0; //(Math.round(Math.random()*(INTERVAL-INTERVAL_SFT)));
-      SERVICE[i] = 0; // (Math.round(Math.random()*(INTERVAL-INTERVAL_SFT)));
     }
   }
   //Controls the reward animation at the top of the screen
@@ -413,8 +411,8 @@ function animate(){
   for (i=0;i<NUM_LINES;i++){
     if (LINE_LENGTHS[i] != 0) {}
     if (ARRIVE[i] == TIC){
+      // time for someone to be added
       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-      //LINES[i].isArriving = false;
     }
     if (SERVICE[i] == TIC){
       LINES[i].isServicing = true;
