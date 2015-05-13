@@ -588,14 +588,14 @@ function animate(){
     if (PLAYER.position != 0) {
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
-	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].getNextXPos();
+	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;
       }
     }
     if (PLAYER.position == 0) {
       LINES[PLAYER.line].Persons.shift();
-      LINES[PLAYER.line].Persons[0].X = 60;
+      LINES[PLAYER.line].Persons[0].X = PERSON_FRONT_OF_LINE;
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
-	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].getNextXPos();
+	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;
       }
     }
 
