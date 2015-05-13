@@ -13,7 +13,7 @@ var psiTurk = PsiTurk(uniqueId, adServerLoc);
 var PLAYER_SCORE = 0;	//Keeps track of the players score
 var NUM_LINES = 2;	//Change to add more lines to the program 3 works well, I think
 var LINES = [];		//This is an array that will be used to keep track of all the persons in each line
-var LINE_REWARDS = [9, 60];	//This sets the reward for each line. If you increase the NUM_LINES, add additional entries here
+var LINE_REWARDS = [1, 12];	//This sets the reward for each line. If you increase the NUM_LINES, add additional entries here
 var LINE_LENGTHS = [0, 12];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
 ///These control the intermediate reward function
 var INTER_REWARDS = false;	//Set this to true if you want the estimate intermediate reward to display, false if you don't
@@ -170,7 +170,7 @@ Line.prototype.getNextXPos = function(){
     // no body in the line
     xpos = PERSON_FRONT_OF_LINE;
   } else {
-    xpos = this.Persons[this.Persons.length-1].X + PERSON_X_SPACING
+    xpos = this.Persons[this.Persons.length-1].X + PERSON_X_SPACING;
   }
 
   return xpos;
@@ -200,8 +200,10 @@ function init() {
   var c = document.getElementById("myCanvas");
   for (i=0;i<NUM_LINES;i++) {
     LINES.push(new Line(GAME_BOARD_Y + GAME_BOARD_HEIGHT/NUM_LINES*(i)));
-    ARRIVE.push(Math.round(Math.random()*INTERVAL-INTERVAL_SFT));
-    SERVICE.push(Math.round(Math.random()*INTERVAL-INTERVAL_SFT));
+    //ARRIVE.push(Math.round(Math.random()*INTERVAL-INTERVAL_SFT));
+    ARRIVE.push(Math.round(Math.random()*INTERVAL));
+    //SERVICE.push(Math.round(Math.random()*INTERVAL-INTERVAL_SFT));
+    SERVICE.push(Math.round(Math.random()*INTERVAL));
     for (j=0;j<LINE_LENGTHS[i];j++) {
       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
       console.log(LINES[i].Persons[j].X);
@@ -619,7 +621,7 @@ function animate(){
   }
 
   //If the player has pressed the down key and is intending to change lines
-  if (PLAYER_DOWN && PLAYER.line != 2 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {
+  if (PLAYER_DOWN && PLAYER.line != 1 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {  // made a change here - Shruthi
     if (PLAYER.position != 0) {
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
@@ -644,16 +646,18 @@ function animate(){
     PLAYER_DOWN = false;
   }
   //If the player can't currently change lines because the destination line is in motion give some visual feedback that the button press was received
-  else if (PLAYER_DOWN && PLAYER.line != 2 && LINES[PLAYER.line+1].isServicing && !SELECTING) {
+  else if (PLAYER_DOWN && PLAYER.line != 1 && LINES[PLAYER.line+1].isServicing && !SELECTING) {         // more changes made - Shruthi
     PLAYER.Y += 1;
   }
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
-  else if (PLAYER_DOWN && SELECTING && PLAYER.line != 2) {
+  else if (PLAYER_DOWN && SELECTING && PLAYER.line != 1) {
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_DOWN = false;
   }
 
+   
+    
   // Check to see if the game is over
   if (TIME_REMAINING <= 0.0 && SENT == 0) {
     //End game and upload results!
@@ -715,6 +719,7 @@ function doKeyDown(evt) {
   }
   if(evt.keyCode == 40) {
     //DOWN!
+    console.log("hey from down!");
     PLAYER_DOWN = true;
   }
   if(evt.keyCode == 37 && SELECTING && !LINES[PLAYER.line].isServicing) {
