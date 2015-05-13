@@ -444,7 +444,7 @@ function animate(){
         PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
         PLAYER.position = -1;
         SELECTING = true;
-        PLAYER_LEFT = false;
+//        PLAYER_LEFT = false;      // Commented out - Shruthi : better keystroke recording
         PLAYER.X = PLAYER_START_X;
         PLAYER.Y = LINES[PLAYER.line].Y;
       }
@@ -463,7 +463,7 @@ function animate(){
       if(LINES[i].isServicing && !SELECTING && PLAYER.line != i){
         // Player not selecting, but not in LINES[i]
         for(j=0;j<LINES[i].Persons.length;j++) {
-          // move the persons to the left
+          // move the persons to the left   
   	       LINES[i].Persons[j].X -= 1;
         }
         if (LINES[i].Persons[0].Y == LINES[i].Y + PERSON_Y_OFFSET) {
@@ -588,7 +588,7 @@ function animate(){
     if (PLAYER.position != 0) {
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
-	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;
+        LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;
       }
     }
     if (PLAYER.position == 0) {
@@ -708,7 +708,8 @@ function doKeyDown(evt) {
   recordKeyData(evt.keyCode);
   if(evt.keyCode == 37) {
     //LEFT!
-    if (!LINES[PLAYER.line].isServicing && !SELECTING) {
+//    if (!LINES[PLAYER.line].isServicing && !SELECTING) {   //commented by Shruthi
+    if (!SELECTING) {
       PLAYER_LEFT = true;
     }
   }
