@@ -622,7 +622,7 @@ function animate(){
   }
 
   //If the player has pressed the down key and is intending to change lines
-  if (PLAYER_DOWN && PLAYER.line != 1 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {  // made a change here - Shruthi
+  if (PLAYER_DOWN && PLAYER.line != LINES.length-1 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {  // made a change here - Shruthi
     if (PLAYER.position != 0) {
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
@@ -647,11 +647,11 @@ function animate(){
     PLAYER_DOWN = false;
   }
   //If the player can't currently change lines because the destination line is in motion give some visual feedback that the button press was received
-  else if (PLAYER_DOWN && PLAYER.line != 1 && LINES[PLAYER.line+1].isServicing && !SELECTING) {         // more changes made - Shruthi
+  else if (PLAYER_DOWN && PLAYER.line != LINES.length-1 && LINES[PLAYER.line+1].isServicing && !SELECTING) {         // more changes made - Shruthi
     PLAYER.Y += 1;
   }
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
-  else if (PLAYER_DOWN && SELECTING && PLAYER.line != 1) {
+  else if (PLAYER_DOWN && SELECTING && PLAYER.line != LINES.length-1) {
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_DOWN = false;
