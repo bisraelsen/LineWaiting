@@ -211,8 +211,9 @@ function init() {
   }
   IMG_PERSON.src = "../static/images/stick_figure.jpg";
   IMG_PLAYER.src = "../static/images/stick_figure_red.jpg";
-  L = Math.ceil(Math.random() * NUM_LINES) - 1;
-  PLAYER = new Player(PLAYER_START_X,LINES[L].Y,L,-1);
+//  L = Math.ceil(Math.random() * NUM_LINES) - 1;
+      L = - 1;
+    PLAYER = new Player(PLAYER_START_X,(LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y,L,-1);
 
   animate()
   console.log("Bye from init!");
@@ -441,12 +442,14 @@ function animate(){
         REWARD = LINE_REWARDS[PLAYER.line];
         REWARD_TIC = 1;
         CHA_CHING.play();
-        PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
+//        PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
+        PLAYER.line = -1;
         PLAYER.position = -1;
         SELECTING = true;
 //        PLAYER_LEFT = false;      // Commented out - Shruthi : better keystroke recording
         PLAYER.X = PLAYER_START_X;
-        PLAYER.Y = LINES[PLAYER.line].Y;
+//        PLAYER.Y = LINES[PLAYER.line].Y;
+        PLAYER.Y = (LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y;
       }
     } else {
       if (ARRIVE[i] == TIC){
@@ -528,20 +531,22 @@ function animate(){
           	LINES[i].isServicing = false;
           	LINES[i].Persons.shift();
           	LINES[i].Persons.pop();
-          	LINES[i].Persons[0].X = 60;
+          	LINES[i].Persons[0].X = PERSON_FRONT_OF_LINE;
           	for (j=1;j<LINES[i].Persons.length;j++){
           	  LINES[i].Persons[j].X = LINES[i].Persons[j-1].X + PERSON_X_SPACING;
           	}
           	REWARD = LINE_REWARDS[PLAYER.line];
           	REWARD_TIC = 1;
           	CHA_CHING.play();
-          	PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
-          	PLAYER.position = -1;
+//          	PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
+            PLAYER.line = -1;
+            PLAYER.position = -1;
           	SELECTING = true;
           	PLAYER_LEFT = false;
-          	PLAYER.X = PLAYER_START_X;
-          	PLAYER.Y = LINES[PLAYER.line].Y;
-          	//draw();
+          	PLAYER.X = PLAYER_START_X; 
+//          	PLAYER.Y = LINES[PLAYER.line].Y;  //Shruthi
+          	PLAYER.Y = (LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y
+            //draw();
         }
       }
 
@@ -549,12 +554,12 @@ function animate(){
       if(PLAYER_LEFT && PLAYER.position != 0 && (LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PERSON_X_SPACING && !LINES[i].isServicing) {
         // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
         setTimeout(playerMoveLeft(),2);
-      } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X >= 60 && !LINES[i].isServicing) {
+      } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X >= PERSON_FRONT_OF_LINE && !LINES[i].isServicing) {
         console.log("Last step!");
-        PLAYER.X = 60;
+        PLAYER.X = PERSON_FRONT_OF_LINE;
         for(j=1;j<LINES[PLAYER.line].Persons.length;j++) {
           //loop through players line and shift x position of other people
-  	      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+  	      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
         }
       }
 
@@ -562,12 +567,12 @@ function animate(){
       if((PLAYER.position > 0) && TIC > (INTERVAL - 5) && PLAYER.position < (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && ((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > 35)) {
         console.log("Slacking!");
         recordLineData()
-        LINES[PLAYER.line].Persons[PLAYER.position + 1].X = LINES[PLAYER.line].Persons[PLAYER.position - 1].X + 30;
+        LINES[PLAYER.line].Persons[PLAYER.position + 1].X = LINES[PLAYER.line].Persons[PLAYER.position - 1].X + PERSON_X_SPACING;
         LINES[PLAYER.line].Persons[PLAYER.position] = LINES[PLAYER.line].Persons[PLAYER.position + 1];
         LINES[PLAYER.line].Persons[PLAYER.position + 1] = PLAYER;
         PLAYER.position += 1;
         for(j=PLAYER.position+1;j<LINES[PLAYER.line].Persons.length;j++) {
-  	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+  	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
         }
       } else if (PLAYER.position == 0 && PLAYER.X > PERSON_FRONT_OF_LINE && TIC > (INTERVAL - 5) && !PLAYER_LEFT) {
         console.log("Slacking at the front!");
@@ -584,18 +589,19 @@ function animate(){
   } // end of for loop to check for service/arrival
 
   //If the player has pressed the UP key and is intending to change lines
-  if (PLAYER_UP && PLAYER.line != 0 && !LINES[PLAYER.line-1].isServicing && !SELECTING) {
+  if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && !LINES[PLAYER.line-1].isServicing && !SELECTING) {
     if (PLAYER.position != 0) {
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
-        LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;
+//	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].getNextXPos();
+    LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;  // made change here- Shruthi
       }
     }
     if (PLAYER.position == 0) {
       LINES[PLAYER.line].Persons.shift();
       LINES[PLAYER.line].Persons[0].X = PERSON_FRONT_OF_LINE;
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
-	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;
+	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].getNextXPos();
       }
     }
 
@@ -610,51 +616,64 @@ function animate(){
   }
   //If the player can't currently change lines because the destination line is in motion
   // give some visual feedback that the button press was received
-  else if (PLAYER_UP && PLAYER.line != 0 && LINES[PLAYER.line-1].isServicing && !SELECTING) {
+  else if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && LINES[PLAYER.line-1].isServicing && !SELECTING) {
     PLAYER.Y -= 1;
   }
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
-  else if (PLAYER_UP && SELECTING && PLAYER.line != 0) {
+  else if (PLAYER_UP && SELECTING && PLAYER.line != 0 && PLAYER.line !=-1) {
     PLAYER.line -= 1;
+    PLAYER.Y = LINES[PLAYER.line].Y;
+    PLAYER_UP = false;
+  }
+    //comment above when fixed initial waiting position
+    else if (PLAYER_UP && SELECTING && PLAYER.line == -1) {
+    PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_UP = false;
   }
 
   //If the player has pressed the down key and is intending to change lines
-  if (PLAYER_DOWN && PLAYER.line != 1 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {  // made a change here - Shruthi
+  if (PLAYER_DOWN && PLAYER.line != LINES.length-1 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {  // made a change here - Shruthi
     if (PLAYER.position != 0) {
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
-	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X+30;
+	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X+ PERSON_X_SPACING;
       }
     }
     if (PLAYER.position == 0) {
       LINES[PLAYER.line].Persons.shift();
       LINES[PLAYER.line].Persons[0].X = PERSON_FRONT_OF_LINE;
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
-	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
       }
     }
 
     PLAYER.line += 1;
 
     PLAYER.position = LINES[PLAYER.line].Persons.length;
-    PLAYER.X = LINES[PLAYER.line].Persons[PLAYER.position-1].X+30;
+    PLAYER.X = LINES[PLAYER.line].Persons[PLAYER.position-1].X+PERSON_X_SPACING;
     PLAYER.Y = LINES[PLAYER.line].Y;
     LINES[PLAYER.line].addPerson(PLAYER);
     recordLineData()
     PLAYER_DOWN = false;
   }
   //If the player can't currently change lines because the destination line is in motion give some visual feedback that the button press was received
-  else if (PLAYER_DOWN && PLAYER.line != 1 && LINES[PLAYER.line+1].isServicing && !SELECTING) {         // more changes made - Shruthi
+  else if (PLAYER_DOWN && PLAYER.line != LINES.length-1 && LINES[PLAYER.line+1].isServicing && !SELECTING) {         // more changes made - Shruthi
     PLAYER.Y += 1;
   }
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
-  else if (PLAYER_DOWN && SELECTING && PLAYER.line != 1) {
-    PLAYER.line += 1;
+  else if (PLAYER_DOWN && SELECTING && PLAYER.line != LINES.length-1&& PLAYER.line == -1) {
+    PLAYER.line += 2;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_DOWN = false;
   }
+        //comment above when fixed initial waiting position
+
+//    else if (PLAYER_DOWN && SELECTING && PLAYER.line == -1) {
+//    PLAYER.line += 2;
+//    PLAYER.Y = LINES[PLAYER.line].Y;
+//    PLAYER_DOWN = false;
+//  }
 
    
     
@@ -678,7 +697,7 @@ function animate(){
 function playerMoveLeft() {
   if (!LINES[PLAYER.line].isServicing) {
     for (j=PLAYER.position;j<LINES[PLAYER.line].Persons.length;j++) {
-      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + 30;
+      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
     }
     if (INTER_REWARDS) {
       INTER_REWARD_TIC = 1;
