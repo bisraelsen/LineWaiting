@@ -61,7 +61,7 @@ var AnimateHandle; //will hold the Interval handle so animate can be stopped whe
 var DrawHandle;
 var save2ServerHandle; //handle for the save2Server that will be called until it is successful
 
-var tstWOInstructions = true; //for testing and skipping instructions
+var tstWOInstructions = false; //for testing and skipping instructions
 
 //Randomly decide between having intermediate rewards on or off
 if (Math.round(Math.random()) == 0){
