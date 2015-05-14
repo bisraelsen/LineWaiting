@@ -279,7 +279,7 @@ function setPieces(){
 
   TIC = 0;
 
-  setTimeout(startAnimation,1500);
+  setTimeout(startAnimation,10);
   REWARDING = false;
   console.log("Bye from set");
 }
