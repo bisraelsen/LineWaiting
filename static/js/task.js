@@ -550,10 +550,15 @@ function animate(){
         }
       }
 
+//    if (PLAYER.line != -1){
+        console.log(PLAYER.line);
       //If player has pressed the left arrow and needs to be moved up
-      if(PLAYER_LEFT && PLAYER.position != 0 && (LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PERSON_X_SPACING && !LINES[i].isServicing) {
+      if(PLAYER_LEFT && PLAYER.position != -1 && PLAYER.position != 0) {
+          console.log(PLAYER.position);
+          if((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PERSON_X_SPACING && !LINES[i].isServicing) {
         // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
         setTimeout(playerMoveLeft(),2);
+          }
       } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X >= PERSON_FRONT_OF_LINE && !LINES[i].isServicing) {
         console.log("Last step!");
         PLAYER.X = PERSON_FRONT_OF_LINE;
@@ -582,10 +587,11 @@ function animate(){
         LINES[PLAYER.line].Persons[1] = PLAYER;
         PLAYER.position = 1;
         for(j=2;j<LINES[PLAYER.line].Persons.length;j++) {
-  	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].getNextXPos();
+  	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X+PERSON_X_SPACING;
         }
       }
     }
+//    }
   } // end of for loop to check for service/arrival
 
   //If the player has pressed the UP key and is intending to change lines
@@ -594,14 +600,15 @@ function animate(){
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
 //	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].getNextXPos();
-    LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;  // made change here- Shruthi
+      LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;  // made change here- Shruthi
       }
     }
     if (PLAYER.position == 0) {
       LINES[PLAYER.line].Persons.shift();
       LINES[PLAYER.line].Persons[0].X = PERSON_FRONT_OF_LINE;
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
-	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].getNextXPos();
+//	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].getNextXPos();
+      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X+PERSON_X_SPACING;
       }
     }
 
@@ -662,18 +669,18 @@ function animate(){
     PLAYER.Y += 1;
   }
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
-  else if (PLAYER_DOWN && SELECTING && PLAYER.line != LINES.length-1&& PLAYER.line == -1) {
-    PLAYER.line += 2;
+  else if (PLAYER_DOWN && SELECTING && PLAYER.line != LINES.length-1 && PLAYER.line != -1) {
+    PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_DOWN = false;
   }
         //comment above when fixed initial waiting position
 
-//    else if (PLAYER_DOWN && SELECTING && PLAYER.line == -1) {
-//    PLAYER.line += 2;
-//    PLAYER.Y = LINES[PLAYER.line].Y;
-//    PLAYER_DOWN = false;
-//  }
+    else if (PLAYER_DOWN && SELECTING && PLAYER.line == -1) {
+    PLAYER.line += 2;
+    PLAYER.Y = LINES[PLAYER.line].Y;
+    PLAYER_DOWN = false;
+  }
 
    
     
@@ -742,7 +749,8 @@ function doKeyDown(evt) {
     console.log("hey from down!");
     PLAYER_DOWN = true;
   }
-  if(evt.keyCode == 37 && SELECTING && !LINES[PLAYER.line].isServicing) {
+//  if(evt.keyCode == 37 && SELECTING && !LINES[PLAYER.line].isServicing) {
+    if(evt.keyCode == 37 && SELECTING ) {
     PLAYER.position = LINES[PLAYER.line].Persons.length;
     PLAYER.X = LINES[PLAYER.line].getNextXPos();
     LINES[PLAYER.line].addPerson(PLAYER);
