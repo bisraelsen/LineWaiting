@@ -4,6 +4,8 @@
 *     utils.js
 */
 
+// this disables console.log for production
+console.log = function() {}
 // Initalize psiturk object
 var psiTurk = PsiTurk(uniqueId, adServerLoc);
 
@@ -50,11 +52,13 @@ var LINE_RECORD = [];
 var POS_RECORD =[];
 var TIME_RECORD = [];
 var REWARD_RECORD = [];
+var REWARDING = false; //tracks when player is being rewarded
 var KEY_RECORD = [];//record for all game move key strokes
 var KEY_TIME_RECORD = [];//associated time for all key strokes
 var SENT = 0;
 var GAME_STARTED = 0;
 var AnimateHandle; //will hold the Interval handle so animate can be stopped when code is finishing
+var DrawHandle;
 var save2ServerHandle; //handle for the save2Server that will be called until it is successful
 
 var tstWOInstructions = true; //for testing and skipping instructions
@@ -217,8 +221,10 @@ function init() {
   //set people in lines
   for (i=0;i<NUM_LINES;i++) {
     LINES.push(new Line(GAME_BOARD_Y + GAME_BOARD_HEIGHT/NUM_LINES*(i)));
-    ARRIVE.push(Math.round(drawGaussianSample(INTERVAL-INTERVAL_SFT,INTERVAL_SFT,0,INTERVAL)));
-    SERVICE.push(Math.round(drawGaussianSample(INTERVAL-INTERVAL_SFT,INTERVAL_SFT,0,INTERVAL)));
+    //ARRIVE.push(Math.round(drawGaussianSample(INTERVAL-INTERVAL_SFT,INTERVAL_SFT,0,INTERVAL)));
+    //SERVICE.push(Math.round(drawGaussianSample(INTERVAL-INTERVAL_SFT,INTERVAL_SFT,0,INTERVAL)));
+    ARRIVE.push(INTERVAL);
+    SERVICE.push(INTERVAL);
     for (j=0;j<LINE_LENGTHS[i];j++) {
       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
       console.log(LINES[i].Persons[j].X);
@@ -233,17 +239,40 @@ function init() {
   L = - 1;
   PLAYER = new Player(PLAYER_START_X,(LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y,L,-1);
 
-  animate();
+
+  startAnimation();
 
   console.log("Bye from init!");
 }
 
+function startAnimation(){
+  AnimateHandle = setInterval(animate,ANIMATE_INTERVAL);
+  DrawHandle = setInterval(draw,ANIMATE_INTERVAL);
+}
+
 function setPieces(){
+  REWARDING = true;
   console.log("Hi from set!");
 
   // Begin resetting board
   var c = document.getElementById("myCanvas");
   var ctx = c.getContext("2d");
+
+  ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
+
+  //Display Score
+  ctx.font="80px Georgia";
+  ctx.fillStyle="#000000";
+  ctx.fillText("+".concat(REWARD.toString()),PLAYER_START_X/2 - 40,LINES[1].Y+25);
+  ctx.fillStyle ="#000000";
+  ctx.stroke();
+
+  // Display text to indicate reset
+  ctx.font="80px Georgia";
+  ctx.fillStyle="#000000";
+  ctx.fillText("New Episode",PLAYER_START_X/4 - 40,LINES[1].Y-50);
+  ctx.fillStyle ="#000000";
+  ctx.stroke();
 
   // Choose new line length for line 2
   LINE_LENGTHS[1] = Math.round(drawGaussianSample(10,5,2,15));
@@ -262,20 +291,11 @@ function setPieces(){
   PLAYER = new Player(PLAYER_START_X,(LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y,L,-1);
   SELECTING = true;
 
-  ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
-
-  // Display text to indicate reset
-  ctx.font="80px Georgia";
-  ctx.fillStyle="#000000";
-  ctx.fillText("New Episode",PLAYER_START_X/4 - 40,LINES[1].Y+25);
-  ctx.fillStyle ="#000000";
-  ctx.stroke();
-
   TIC = 0;
 
-  // Call the animate function with an initial timeout of 1 second, to wait for display. This will be changed to ANIMATE_INTERVAL at the end of the animate function.
-  AnimateHandle = setTimeout(animate,10000);
-  console.log("Bye from se");
+  setTimeout(startAnimation,1500);
+  REWARDING = false;
+  console.log("Bye from set");
 }
 
 function reward() {
@@ -294,7 +314,7 @@ function reward() {
 
 //Draws the current state of the game to the screen
 function draw(){
-  console.log("Hi from draw!");
+  //console.log("Hi from draw!");
   var c = document.getElementById("myCanvas");
   var ctx = c.getContext("2d");
 
@@ -343,51 +363,6 @@ function draw(){
     ctx.fillText("  value of that move if you make it to the front of the line.",5,y_ctrls+80)
   }
 
-  //define animation timing
-  lv1 = 100;
-  lv2 = 100;
-  lv3 = 200;
-  lv4 = 0;
-  lv5 = 400;
-  // Find where the animation needs to begin
-  for (i=0; i<NUM_LINES; i++){
-    if(REWARD == LINE_REWARDS[i]){
-      score_startY = LINES[i].Y + 10
-    }
-  }
-  score_endY = LINES[1].Y;
-  score_startX = 5;
-  score_endX = x_start/2;
-  // Animate the score
-  if (REWARD_TIC > lv1 && REWARD_TIC < lv2){
-    ctx.font="20px Georgia";
-    ctx.fillStyle="#000000";
-    ctx.fillText("+",score_startX,score_startY);
-    ctx.fillText(REWARD.toString(),score_startX,score_startY);
-    ctx.fillStyle ="#000000";
-  }
-  if (REWARD_TIC > lv2 && REWARD_TIC < lv3){
-    ctx.font="40px Georgia";
-    ctx.fillStyle="#000000";
-    ctx.fillText("+",x_start/4 - 20,score);
-    ctx.fillText(REWARD.toString(),x_start/2-25,LINES[1].Y+25);
-    ctx.fillStyle ="#000000";
-  }
-  if (REWARD_TIC > lv3 && REWARD_TIC < lv4){
-    ctx.font="80px Georgia";
-    ctx.fillStyle="#000000";
-    ctx.fillText("+",x_start/3 - 40,LINES[1].Y+25);
-    ctx.fillText(REWARD.toString(),x_start/2-25,LINES[1].Y+25);
-    ctx.fillStyle ="#000000";
-  }
-  if (REWARD_TIC > lv4){
-    ctx.font="160px Georgia";
-    ctx.fillStyle="#000000";
-    ctx.fillText("+",x_start/2 - 120,LINES[1].Y+25);
-    ctx.fillText(REWARD.toString(),x_start/2-25,LINES[1].Y+25);
-    ctx.fillStyle ="#000000";
-  }
-
   ctx.strokeStyle="#000000";
   ctx.strokeRect(x_start,y_boxes-25,w_boxes,h_boxes);
   ctx.strokeStyle="#008080";
@@ -429,8 +404,7 @@ function draw(){
   }
   ctx.stroke();
 
-  // Call back animate
-  AnimateHandle = setTimeout(animate,ANIMATE_INTERVAL);
+ // end of draw
 }
 
 //Update the time calculation
@@ -467,7 +441,7 @@ function recordKeyData(stroke){
 //This is called repeatedly to update the state of the game and
 // animate the lines
 function animate(){
-  console.log("Hi from animate")
+  //console.log("Hi from animate")
   TIC = TIC + 1;			//Update the TIC global var to keep time
   //Reset count when the interval (set in global vars) has passed
   if (TIC > INTERVAL) {
@@ -509,8 +483,12 @@ function animate(){
     if (LINE_LENGTHS[i] == 0) {
       if (PLAYER.line == i && !SELECTING) {
         //stop animation
-        clearTimeout(AnimateHandle)
-        reward();
+        clearInterval(AnimateHandle);
+        clearInterval(DrawHandle);
+        if (!REWARDING){
+          //Dont call more than once
+          reward();
+        }
       }
     } else {
 
@@ -591,8 +569,12 @@ function animate(){
         	}
         } else if (PLAYER.position == 0 && PLAYER.X <= PERSON_FRONT_OF_LINE) {
           //stop animation
-          clearTimeout(AnimateHandle)
-          reward();
+          clearInterval(AnimateHandle);
+          clearInterval(DrawHandle);
+          if (!REWARDING){
+            //Dont call more than once
+            reward();
+          }
         }
       }
 
@@ -735,10 +717,6 @@ function animate(){
     //End game and upload results!
     clearTimeout(AnimateHandle) //stop animation
     end_game()
-  }
-  else{
-    // Game isn't over, keep drawing
-    draw();
   }
 }
 
