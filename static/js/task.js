@@ -260,20 +260,6 @@ function setPieces(){
 
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
 
-  //Display Score
-  ctx.font="80px Georgia";
-  ctx.fillStyle="#000000";
-  ctx.fillText("+".concat(REWARD.toString()),PLAYER_START_X/2 - 40,LINES[1].Y+25);
-  ctx.fillStyle ="#000000";
-  ctx.stroke();
-
-  // Display text to indicate reset
-  ctx.font="80px Georgia";
-  ctx.fillStyle="#000000";
-  ctx.fillText("Great, Try Again!",PLAYER_START_X/4 - 40,LINES[1].Y-50);
-  ctx.fillStyle ="#000000";
-  ctx.stroke();
-
   // Choose new line length for line 2
   LINE_LENGTHS[1] = Math.round(drawGaussianSample(10,5,2,15));
 
@@ -361,6 +347,14 @@ function draw(){
   if (INTER_REWARDS > 0){
     ctx.fillText("- The green point total you see after each move is a prediction of the",5,y_ctrls+60)
     ctx.fillText("  value of that move if you make it to the front of the line.",5,y_ctrls+80)
+  }
+
+  if (REWARD_TIC > 0){
+    ctx.font="160px Georgia";
+    ctx.fillStyle="#000000";
+    ctx.fillText("+",x_start/2 - 120,LINES[1].Y+25);
+    ctx.fillText(REWARD.toString(),x_start/2-25,LINES[1].Y+25);
+    ctx.fillStyle ="#000000";
   }
 
   ctx.strokeStyle="#000000";
