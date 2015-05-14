@@ -805,6 +805,8 @@ function save2Server() {
     }
   }
 );
+    
+    //done for git commit
   //in case of failure call back
   setTimeout(save2Server,3000);
 };
