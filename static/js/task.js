@@ -74,7 +74,7 @@ else{
   //console.log("condittion is " + INTER_REWARDS);
 }
 //force condition to get balanced data
-INTER_REWARDS = true;
+INTER_REWARDS = false;
 // set condition in database
 psiTurk.taskdata.set('cond',INTER_REWARDS)
 
@@ -349,7 +349,7 @@ function draw(){
     ctx.fillText("  value of that move if you make it to the front of the line.",5,y_ctrls+80)
   }
 
-  if (REWARD_TIC > 0){
+  if (REWARD_TIC > 0 && !INTER_REWARDS){
     ctx.font="160px Georgia";
     ctx.fillStyle="#000000";
     ctx.fillText("+",x_start/2 - 120,LINES[1].Y+25);
@@ -467,6 +467,7 @@ function animate(){
     INTER_REWARD_TIC += 1;
     if (INTER_REWARD_TIC > INTERVAL/2){
       INTER_REWARD_TIC = 0;
+      PLAYER_SCORE += INTER_REWARD;
       INTER_REWARD = 0;
     }
   }
