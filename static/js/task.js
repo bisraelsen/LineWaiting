@@ -38,7 +38,7 @@ var IMG_PLAYER = new Image();
 var ARRIVE = []; // array to store when people should be added to lines
 var SERVICE = []; // array to store when people should exit lines
 var ANIMATE_INTERVAL = 20; //rate at which the animate function is called in ms
-var INTERVAL = 100;// INTERVAL * ANIMATE_INTERVAL is the rate at which lines advance
+var INTERVAL = 50;// INTERVAL * ANIMATE_INTERVAL is the rate at which lines advance
 var INTERVAL_SFT = 30;//shift to the INTERVAL for random assignment of line advancement
 var PLAYER_UP = false;
 var PLAYER_DOWN = false;
@@ -429,7 +429,8 @@ function draw(){
   }
   ctx.stroke();
 
-  //console.log("Bye from draw!");
+  // Call back animate
+  AnimateHandle = setTimeout(animate,ANIMATE_INTERVAL);
 }
 
 //Update the time calculation
@@ -601,8 +602,8 @@ function animate(){
       if(PLAYER_LEFT && PLAYER.position != -1 && PLAYER.position != 0) {
           console.log(PLAYER.position);
           if((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PERSON_X_SPACING && !LINES[i].isServicing) {
-        // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
-        setTimeout(playerMoveLeft(),2);
+            // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
+            playerMoveLeft();
           }
       } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X >= PERSON_FRONT_OF_LINE && !LINES[i].isServicing) {
         console.log("Last step!");
@@ -737,7 +738,6 @@ function animate(){
   }
   else{
     // Game isn't over, keep drawing
-    AnimateHandle = setTimeout(animate,ANIMATE_INTERVAL);
     draw();
   }
 }
@@ -775,11 +775,11 @@ function doKeyDown(evt) {
     init();
   }
   console.log("Hey from key detect!");
+
   //Record key stroke
   recordKeyData(evt.keyCode);
   if(evt.keyCode == 37) {
-    //LEFT!
-//    if (!LINES[PLAYER.line].isServicing && !SELECTING) {   //commented by Shruthi
+    //LEFT
     if (!SELECTING) {
       PLAYER_LEFT = true;
     }
@@ -794,8 +794,9 @@ function doKeyDown(evt) {
     console.log("hey from down!");
     PLAYER_DOWN = true;
   }
-//  if(evt.keyCode == 37 && SELECTING && !LINES[PLAYER.line].isServicing) {
-    if(evt.keyCode == 37 && SELECTING && PLAYER.line != -1) {
+
+  if(evt.keyCode == 37 && SELECTING && PLAYER.line != -1) {
+    // move from selection area
     PLAYER.position = LINES[PLAYER.line].Persons.length;
     PLAYER.X = LINES[PLAYER.line].getNextXPos();
     LINES[PLAYER.line].addPerson(PLAYER);
