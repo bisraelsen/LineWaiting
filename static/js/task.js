@@ -37,9 +37,9 @@ var IMG_PERSON = new Image();
 var IMG_PLAYER = new Image();
 var ARRIVE = []; // array to store when people should be added to lines
 var SERVICE = []; // array to store when people should exit lines
-var ANIMATE_INTERVAL = 20; //rate at which the animate function is called in ms
-var INTERVAL = 50;// INTERVAL * ANIMATE_INTERVAL is the rate at which lines advance
-var INTERVAL_SFT = 0.0* INTERVAL;//shift to the INTERVAL for random assignment of line advancement
+var ANIMATE_INTERVAL = 10; //rate at which the animate function is called in ms
+var INTERVAL = 100;// INTERVAL * ANIMATE_INTERVAL is the rate at which lines advance
+var INTERVAL_SFT = 30;//shift to the INTERVAL for random assignment of line advancement
 var PLAYER_UP = false;
 var PLAYER_DOWN = false;
 var START_TIME = 0;
@@ -188,6 +188,21 @@ Line.prototype.getAtFront = function(){
   return false;
 }
 
+function drawGaussianSample(mu,sigma,min,max){
+  //convert from uniform distribution (included in base js) to gaussian
+  //http://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+  twoPi = 2* Math.PI;
+  var z1 = Math.sqrt(-2*Math.log(Math.random()))*Math.cos(twoPi*Math.random());
+  sample = z1 * sigma + mu;
+  if (sample < min){
+    return min;
+  } else if (sample > max) {
+    return max
+  } else {
+      return sample
+  }
+}
+
 /////
 ///// FUNCTIONS
 /////
@@ -200,10 +215,8 @@ function init() {
   var c = document.getElementById("myCanvas");
   for (i=0;i<NUM_LINES;i++) {
     LINES.push(new Line(GAME_BOARD_Y + GAME_BOARD_HEIGHT/NUM_LINES*(i)));
-    //ARRIVE.push(Math.round(Math.random()*INTERVAL-INTERVAL_SFT));
-    ARRIVE.push(Math.round(Math.random()*INTERVAL));
-    //SERVICE.push(Math.round(Math.random()*INTERVAL-INTERVAL_SFT));
-    SERVICE.push(Math.round(Math.random()*INTERVAL));
+    ARRIVE.push(Math.round(drawGaussianSample(INTERVAL-INTERVAL_SFT,INTERVAL_SFT,0,INTERVAL)));
+    SERVICE.push(Math.round(drawGaussianSample(INTERVAL-INTERVAL_SFT,INTERVAL_SFT,0,INTERVAL)));
     for (j=0;j<LINE_LENGTHS[i];j++) {
       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
       console.log(LINES[i].Persons[j].X);
@@ -452,11 +465,13 @@ function animate(){
         PLAYER.Y = (LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y;
       }
     } else {
-      if (ARRIVE[i] == TIC){
+
+      if ( ARRIVE[i] == TIC){
         // time for someone to be added
         LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
       }
-      if (SERVICE[i] == TIC){
+
+      if ( SERVICE[i] == TIC){
         // time for someone to exit the line
         LINES[i].isServicing = true;
       }
@@ -466,7 +481,7 @@ function animate(){
       if(LINES[i].isServicing && !SELECTING && PLAYER.line != i){
         // Player not selecting, but not in LINES[i]
         for(j=0;j<LINES[i].Persons.length;j++) {
-          // move the persons to the left   
+          // move the persons to the left
   	       LINES[i].Persons[j].X -= 1;
         }
         if (LINES[i].Persons[0].Y == LINES[i].Y + PERSON_Y_OFFSET) {
@@ -543,7 +558,7 @@ function animate(){
             PLAYER.position = -1;
           	SELECTING = true;
           	PLAYER_LEFT = false;
-          	PLAYER.X = PLAYER_START_X; 
+          	PLAYER.X = PLAYER_START_X;
 //          	PLAYER.Y = LINES[PLAYER.line].Y;  //Shruthi
           	PLAYER.Y = (LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y
             //draw();
@@ -682,8 +697,8 @@ function animate(){
     PLAYER_DOWN = false;
   }
 
-   
-    
+
+
   // Check to see if the game is over
   if (TIME_REMAINING <= 0.0 && SENT == 0) {
     //End game and upload results!
