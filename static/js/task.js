@@ -37,9 +37,10 @@ var IMG_PERSON = new Image();
 var IMG_PLAYER = new Image();
 var ARRIVE = []; // array to store when people should be added to lines
 var SERVICE = []; // array to store when people should exit lines
-var ANIMATE_INTERVAL = 10; //rate at which the animate function is called in ms
-var INTERVAL = 100;// INTERVAL * ANIMATE_INTERVAL is the rate at which lines advance
+var ANIMATE_INTERVAL = 20; //rate at which the animate function is called in ms
+var INTERVAL = 50;// INTERVAL * ANIMATE_INTERVAL is the rate at which lines advance
 var INTERVAL_SFT = 30;//shift to the INTERVAL for random assignment of line advancement
+var NEW_EPISODE =false; //helps with setting callback for animation
 var PLAYER_UP = false;
 var PLAYER_DOWN = false;
 var START_TIME = 0;
@@ -228,10 +229,65 @@ function init() {
       L = - 1;
     PLAYER = new Player(PLAYER_START_X,(LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y,L,-1);
 
-  animate()
+    AnimateHandle = setTimeout(animate,ANIMATE_INTERVAL);
+
   console.log("Bye from init!");
 }
 
+function setPieces(){
+  console.log("Hi from set!");
+
+  // Begin resetting board
+  var c = document.getElementById("myCanvas");
+  var ctx = c.getContext("2d");
+
+  // Choose new line length for line 2
+  LINE_LENGTHS[1] = Math.round(drawGaussianSample(10,5,2,15));
+
+  // Set people
+  for (i=0;i<NUM_LINES;i++) {
+    LINES[i].Persons = []; //clear out the existing array
+    for (j=0;j<LINE_LENGTHS[i];j++) {
+      LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+      console.log(LINES[i].Persons[j].X);
+    }
+  }
+
+  // Set PLAYER
+  L = - 1; //Player starts in neutral waiting area
+  PLAYER = new Player(PLAYER_START_X,(LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y,L,-1);
+  SELECTING = true;
+
+  ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
+
+  // Display text to indicate reset
+  ctx.font="80px Georgia";
+  ctx.fillStyle="#000000";
+  ctx.fillText("New Episode",PLAYER_START_X/4 - 40,LINES[1].Y+25);
+  ctx.fillStyle ="#000000";
+  ctx.stroke();
+
+  TIC = 0;
+
+  // Call the animate function with an initial timeout of 1 second, to wait for display. This will be changed to ANIMATE_INTERVAL at the end of the animate function.
+  NEW_EPISODE = true;
+  AnimateHandle = setTimeout(animate,10000);
+  console.log("Bye from se");
+}
+
+function reward() {
+  console.log("Reward!");
+  LINES[i].isServicing = false;
+  LINES[i].Persons.shift();
+  LINES[i].Persons.pop();
+
+  REWARD = LINE_REWARDS[PLAYER.line];
+  REWARD_TIC = 1;
+  CHA_CHING.play();
+
+  // reset board
+  setPieces();
+}
 
 //Draws the current state of the game to the screen
 function draw(){
@@ -447,22 +503,9 @@ function animate(){
   for (i=0;i<NUM_LINES;i++){
     if (LINE_LENGTHS[i] == 0) {
       if (PLAYER.line == i && !SELECTING) {
-        console.log("Reward!");
-        LINES[i].isServicing = false;
-        LINES[i].Persons.shift();
-        LINES[i].Persons.pop();
-
-        REWARD = LINE_REWARDS[PLAYER.line];
-        REWARD_TIC = 1;
-        CHA_CHING.play();
-//        PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
-        PLAYER.line = -1;
-        PLAYER.position = -1;
-        SELECTING = true;
-//        PLAYER_LEFT = false;      // Commented out - Shruthi : better keystroke recording
-        PLAYER.X = PLAYER_START_X;
-//        PLAYER.Y = LINES[PLAYER.line].Y;
-        PLAYER.Y = (LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y;
+        //stop animation
+        clearTimeout(AnimateHandle)
+        reward();
       }
     } else {
 
@@ -542,26 +585,9 @@ function animate(){
         	  console.log(PLAYER.position);
         	}
         } else if (PLAYER.position == 0 && PLAYER.X <= PERSON_FRONT_OF_LINE) {
-          	console.log("Reward!");
-          	LINES[i].isServicing = false;
-          	LINES[i].Persons.shift();
-          	LINES[i].Persons.pop();
-          	LINES[i].Persons[0].X = PERSON_FRONT_OF_LINE;
-          	for (j=1;j<LINES[i].Persons.length;j++){
-          	  LINES[i].Persons[j].X = LINES[i].Persons[j-1].X + PERSON_X_SPACING;
-          	}
-          	REWARD = LINE_REWARDS[PLAYER.line];
-          	REWARD_TIC = 1;
-          	CHA_CHING.play();
-//          	PLAYER.line = Math.ceil(Math.random() * NUM_LINES) - 1;
-            PLAYER.line = -1;
-            PLAYER.position = -1;
-          	SELECTING = true;
-          	PLAYER_LEFT = false;
-          	PLAYER.X = PLAYER_START_X;
-//          	PLAYER.Y = LINES[PLAYER.line].Y;  //Shruthi
-          	PLAYER.Y = (LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y
-            //draw();
+          //stop animation
+          clearTimeout(AnimateHandle)
+          reward();
         }
       }
 
@@ -706,8 +732,7 @@ function animate(){
     end_game()
   }
   else{
-    // Game isn't over, keep animating
-    AnimateHandle = setTimeout(animate,ANIMATE_INTERVAL);
+    // Game isn't over, keep drawing
     draw();
   }
 }
@@ -820,7 +845,7 @@ function save2Server() {
     }
   }
 );
-    
+
     //done for git commit
   //in case of failure call back
   setTimeout(save2Server,3000);
