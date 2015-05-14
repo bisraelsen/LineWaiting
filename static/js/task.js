@@ -38,9 +38,8 @@ var IMG_PLAYER = new Image();
 var ARRIVE = []; // array to store when people should be added to lines
 var SERVICE = []; // array to store when people should exit lines
 var ANIMATE_INTERVAL = 20; //rate at which the animate function is called in ms
-var INTERVAL = 50;// INTERVAL * ANIMATE_INTERVAL is the rate at which lines advance
+var INTERVAL = 100;// INTERVAL * ANIMATE_INTERVAL is the rate at which lines advance
 var INTERVAL_SFT = 30;//shift to the INTERVAL for random assignment of line advancement
-var NEW_EPISODE =false; //helps with setting callback for animation
 var PLAYER_UP = false;
 var PLAYER_DOWN = false;
 var START_TIME = 0;
@@ -214,6 +213,8 @@ function init() {
   console.log("Hi from init!");
   console.log("condition is " + INTER_REWARDS);
   var c = document.getElementById("myCanvas");
+
+  //set people in lines
   for (i=0;i<NUM_LINES;i++) {
     LINES.push(new Line(GAME_BOARD_Y + GAME_BOARD_HEIGHT/NUM_LINES*(i)));
     ARRIVE.push(Math.round(drawGaussianSample(INTERVAL-INTERVAL_SFT,INTERVAL_SFT,0,INTERVAL)));
@@ -223,13 +224,16 @@ function init() {
       console.log(LINES[i].Persons[j].X);
     }
   }
+
+  // Set image files
   IMG_PERSON.src = "../static/images/stick_figure.jpg";
   IMG_PLAYER.src = "../static/images/stick_figure_red.jpg";
-//  L = Math.ceil(Math.random() * NUM_LINES) - 1;
-      L = - 1;
-    PLAYER = new Player(PLAYER_START_X,(LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y,L,-1);
 
-    AnimateHandle = setTimeout(animate,ANIMATE_INTERVAL);
+  // Set player location
+  L = - 1;
+  PLAYER = new Player(PLAYER_START_X,(LINES[1].Y - LINES[0].Y)/2 + LINES[0].Y,L,-1);
+
+  animate();
 
   console.log("Bye from init!");
 }
@@ -270,7 +274,6 @@ function setPieces(){
   TIC = 0;
 
   // Call the animate function with an initial timeout of 1 second, to wait for display. This will be changed to ANIMATE_INTERVAL at the end of the animate function.
-  NEW_EPISODE = true;
   AnimateHandle = setTimeout(animate,10000);
   console.log("Bye from se");
 }
@@ -291,7 +294,7 @@ function reward() {
 
 //Draws the current state of the game to the screen
 function draw(){
-  //console.log("Hi from draw!");
+  console.log("Hi from draw!");
   var c = document.getElementById("myCanvas");
   var ctx = c.getContext("2d");
 
@@ -463,6 +466,7 @@ function recordKeyData(stroke){
 //This is called repeatedly to update the state of the game and
 // animate the lines
 function animate(){
+  console.log("Hi from animate")
   TIC = TIC + 1;			//Update the TIC global var to keep time
   //Reset count when the interval (set in global vars) has passed
   if (TIC > INTERVAL) {
@@ -733,6 +737,7 @@ function animate(){
   }
   else{
     // Game isn't over, keep drawing
+    AnimateHandle = setTimeout(animate,ANIMATE_INTERVAL);
     draw();
   }
 }
@@ -790,7 +795,7 @@ function doKeyDown(evt) {
     PLAYER_DOWN = true;
   }
 //  if(evt.keyCode == 37 && SELECTING && !LINES[PLAYER.line].isServicing) {
-    if(evt.keyCode == 37 && SELECTING ) {
+    if(evt.keyCode == 37 && SELECTING && PLAYER.line != -1) {
     PLAYER.position = LINES[PLAYER.line].Persons.length;
     PLAYER.X = LINES[PLAYER.line].getNextXPos();
     LINES[PLAYER.line].addPerson(PLAYER);
