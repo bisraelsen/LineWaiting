@@ -5,7 +5,7 @@
 */
 
 // this disables console.log for production
-console.log = function() {}
+//console.log = function() {}
 // Initalize psiturk object
 var psiTurk = PsiTurk(uniqueId, adServerLoc);
 
@@ -203,7 +203,7 @@ function drawGaussianSample(mu,sigma,min,max){
   } else if (sample > max) {
     return max
   } else {
-      return sample
+    return sample
   }
 }
 
@@ -270,7 +270,7 @@ function setPieces(){
   // Display text to indicate reset
   ctx.font="80px Georgia";
   ctx.fillStyle="#000000";
-  ctx.fillText("New Episode",PLAYER_START_X/4 - 40,LINES[1].Y-50);
+  ctx.fillText("Great, Try Again!",PLAYER_START_X/4 - 40,LINES[1].Y-50);
   ctx.fillStyle ="#000000";
   ctx.stroke();
 
