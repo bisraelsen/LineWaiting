@@ -60,6 +60,8 @@ var GAME_STARTED = 0;
 var AnimateHandle; //will hold the Interval handle so animate can be stopped when code is finishing
 var DrawHandle;
 var save2ServerHandle; //handle for the save2Server that will be called until it is successful
+var TIME_AT_REWARD = 300*1000;
+
 
 var tstWOInstructions = false; //for testing and skipping instructions
 
@@ -253,7 +255,7 @@ function startAnimation(){
 function setPieces(){
   REWARDING = true;
   console.log("Hi from set!");
-
+  TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME)); // Record when Reward happened
   // Begin resetting board
   var c = document.getElementById("myCanvas");
   var ctx = c.getContext("2d");
@@ -763,13 +765,39 @@ function doKeyDown(evt) {
   }
   if(evt.keyCode == 38) {
     console.log("hey from up!");
-    PLAYER_UP = true;
+      console.log("Time at reward" + TIME_AT_REWARD);
+      console.log("Time remaining" + TIME_REMAINING);
+      console.log("Difference "+ ((TIME_AT_REWARD) - TIME_REMAINING));
+      var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
+    if( (PLAYER.line == -1) && difference > 500){
+         PLAYER_UP = true;
+        TIME_AT_REWARD =0;
+        }
+    
+    else if (PLAYER.line != -1){
+            PLAYER_UP = true;
+    }
+    
+    
+    }
     //UP!
-  }
+  
   if(evt.keyCode == 40) {
     //DOWN!
     console.log("hey from down!");
-    PLAYER_DOWN = true;
+      PLAYER_DOWN = true;
+//      getTime();
+//      console.log("Time at reward" + TIME_AT_REWARD);
+//      console.log("Time remaining" + TIME_REMAINING);
+//      console.log("Difference "+ ((TIME_AT_REWARD) - TIME_REMAINING));
+//      var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
+//    if (Player.line == -1 && difference > 250){
+//    PLAYER_DOWN = true;
+//        TIME_AT_REWARD =0;
+//    }
+//      else if(PLAYER.line != -1){
+//          PLAYER_DOWN = true;
+//      }
   }
 
   if(evt.keyCode == 37 && SELECTING && PLAYER.line != -1) {
