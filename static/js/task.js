@@ -733,9 +733,8 @@ function playerMoveLeft() {
   }
 }
 
-//Detects button presses and reacts accordingly
-function doKeyDown(evt) {
-  if (GAME_STARTED == 0){
+function endInstructions(){
+    if (GAME_STARTED == 0){
     //Close out the pisturk instructions
     psiTurk.finishInstructions();
     // Load the stage.html snippet into the body of the page, the stage.html has "myCanvas"
@@ -746,7 +745,12 @@ function doKeyDown(evt) {
     ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
     GAME_STARTED = 1;
     init();
+    doKeyDown(true);
   }
+}
+
+//Detects button presses and reacts accordingly
+function doKeyDown(evt) {
   console.log("Hey from key detect!");
 
   //Record key stroke
@@ -841,6 +845,6 @@ var currentview;
 $(window).load( function(){
   psiTurk.doInstructions(
     instructionPages, // a list of pages you want to display in sequence
-    function() { doKeyDown(true) } // what you want to do when you are done with instructions
+    function() { endInstructions() } // what you want to do when you are done with instructions
   );
 });
