@@ -659,9 +659,13 @@ function animate(){
   }
     //comment above when fixed initial waiting position
     else if (PLAYER_UP && SELECTING && PLAYER.line == -1) {
+        getTime();
+        var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
+    if (difference >500){    
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_UP = false;
+    }
   }
 
   //If the player has pressed the down key and is intending to change lines
@@ -702,9 +706,13 @@ function animate(){
         //comment above when fixed initial waiting position
 
     else if (PLAYER_DOWN && SELECTING && PLAYER.line == -1) {
+        getTime();
+        var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
+        if (difference >500){
     PLAYER.line += 2;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_DOWN = false;
+        }
   }
 
 
@@ -764,20 +772,8 @@ function doKeyDown(evt) {
     }
   }
   if(evt.keyCode == 38) {
-    console.log("hey from up!");
-      console.log("Time at reward" + TIME_AT_REWARD);
-      console.log("Time remaining" + TIME_REMAINING);
-      console.log("Difference "+ ((TIME_AT_REWARD) - TIME_REMAINING));
-      var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-    if( (PLAYER.line == -1) && difference > 500){
-         PLAYER_UP = true;
-        TIME_AT_REWARD =0;
-        }
-    
-    else if (PLAYER.line != -1){
-            PLAYER_UP = true;
-    }
-    
+    console.log("hey from up!");  
+    PLAYER_UP = true;
     
     }
     //UP!
@@ -785,18 +781,18 @@ function doKeyDown(evt) {
   if(evt.keyCode == 40) {
     //DOWN!
     console.log("hey from down!");
-      PLAYER_DOWN = true;
-//      getTime();
+//      PLAYER_DOWN = true;
+      
 //      console.log("Time at reward" + TIME_AT_REWARD);
 //      console.log("Time remaining" + TIME_REMAINING);
 //      console.log("Difference "+ ((TIME_AT_REWARD) - TIME_REMAINING));
 //      var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-//    if (Player.line == -1 && difference > 250){
+//    if (Player.line == -1 && difference > 500){
 //    PLAYER_DOWN = true;
 //        TIME_AT_REWARD =0;
 //    }
 //      else if(PLAYER.line != -1){
-//          PLAYER_DOWN = true;
+          PLAYER_DOWN = true;
 //      }
   }
 
