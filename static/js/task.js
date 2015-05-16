@@ -661,7 +661,7 @@ function animate(){
     else if (PLAYER_UP && SELECTING && PLAYER.line == -1) {
         getTime();
         var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-    if (difference >500){    
+    if (difference >1000){    
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_UP = false;
@@ -708,7 +708,7 @@ function animate(){
     else if (PLAYER_DOWN && SELECTING && PLAYER.line == -1) {
         getTime();
         var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-        if (difference >500){
+        if (difference >1000){
     PLAYER.line += 2;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_DOWN = false;
