@@ -263,7 +263,7 @@ function setPieces(){
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
 
   // Choose new line length for line 2
-  LINE_LENGTHS[1] = 12; //Math.round(drawGaussianSample(10,5,2,15));
+  LINE_LENGTHS[1] = Math.round(drawGaussianSample(10,5,2,15));
 
   // Set people
   for (i=0;i<NUM_LINES;i++) {
