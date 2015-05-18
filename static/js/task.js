@@ -345,7 +345,7 @@ function draw(){
   ctx.font="20px Georgia";
   ctx.fillText("Controls:",5,y_ctrls);
   ctx.fillText("- Left Arrow - Enter line, advance in the line",5,y_ctrls+20);
-  ctx.fillText("- Up/Down arrow - switch lines",5,y_ctrls+40);
+  ctx.fillText("- Up/Down arrow - select/switch lines",5,y_ctrls+40);
   if (INTER_REWARDS > 0){
     ctx.fillText("- The green point total you see after each move is a prediction of the",5,y_ctrls+60)
     ctx.fillText("  value of that move if you make it to the front of the line.",5,y_ctrls+80)
