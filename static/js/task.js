@@ -61,8 +61,8 @@ var AnimateHandle; //will hold the Interval handle so animate can be stopped whe
 var DrawHandle;
 var save2ServerHandle; //handle for the save2Server that will be called until it is successful
 var TIME_AT_REWARD = 300*1000;
-
-
+var Slacking_check = false;
+var LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));
 var tstWOInstructions = false; //for testing and skipping instructions
 
 //Randomly decide between having intermediate rewards on or off
@@ -170,6 +170,9 @@ Line.prototype.addPerson = function(P) {
   this.Persons.push(P);
 }
 
+Line.prototype.add2people = function(P1,P2){
+    this.Persons.push(P1,P2);
+}
 //This function gets the x position to add a new figure
 Line.prototype.getNextXPos = function(){
   if (this.Persons.length == 0) {
@@ -261,10 +264,15 @@ function setPieces(){
   var ctx = c.getContext("2d");
 
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
-
   // Choose new line length for line 2
-  LINE_LENGTHS[1] = Math.round(drawGaussianSample(12,3,7,17));
-
+  //LINE_LENGTHS[1] = LINE_LENGTHS_NEW;
+  var M = 2;
+  
+    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
+        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
+    }
+    
+  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));    
   // Set people
   for (i=0;i<NUM_LINES;i++) {
     LINES[i].Persons = []; //clear out the existing array
@@ -491,7 +499,29 @@ function animate(){
 
       if ( ARRIVE[i] == TIC){
         // time for someone to be added
+        if(i==1){
+            if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
         LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+            }
+            else if (LINE_LENGTHS_NEW > LINE_LENGTHS[i]){
+                console.log("Next length is bigger!!");
+                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
+                LINES[i].add2people(new Person(LINES[i].getNextXPos(),LINES[i].Y), new Person(LINES[i].getNextXPos() + PERSON_X_SPACING , LINES[i].Y) );
+                }
+                else {
+                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+                }
+            }
+            else{
+                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
+                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+                }
+            }
+        }
+          else {
+              LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+          }
+        
       }
 
       if ( SERVICE[i] == TIC){
@@ -596,6 +626,7 @@ function animate(){
       //If the player slacks off and doesn't move up
       if((PLAYER.position > 0) && TIC > (INTERVAL - 5) && PLAYER.position < (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && ((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > 35)) {
         console.log("Slacking!");
+          Slacking_check  = true;
         recordLineData()
         LINES[PLAYER.line].Persons[PLAYER.position + 1].X = LINES[PLAYER.line].Persons[PLAYER.position - 1].X + PERSON_X_SPACING;
         LINES[PLAYER.line].Persons[PLAYER.position] = LINES[PLAYER.line].Persons[PLAYER.position + 1];
@@ -606,6 +637,7 @@ function animate(){
         }
       } else if (PLAYER.position == 0 && PLAYER.X > PERSON_FRONT_OF_LINE && TIC > (INTERVAL - 5) && !PLAYER_LEFT) {
         console.log("Slacking at the front!");
+          Slacking_check  = true;
         recordTrialData()
         LINES[PLAYER.line].Persons[PLAYER.position + 1].X = PERSON_FRONT_OF_LINE;
         LINES[PLAYER.line].Persons[0] = LINES[PLAYER.line].Persons[1];
@@ -762,7 +794,7 @@ function endInstructions(){
 //Detects button presses and reacts accordingly
 function doKeyDown(evt) {
   console.log("Hey from key detect!");
-
+  Slacking_check = false;
   //Record key stroke
   recordKeyData(evt.keyCode);
   if(evt.keyCode == 37) {
