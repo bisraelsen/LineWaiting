@@ -16,7 +16,7 @@ var PLAYER_SCORE = 0;	//Keeps track of the players score
 var NUM_LINES = 2;	//Change to add more lines to the program 3 works well, I think
 var LINES = [];		//This is an array that will be used to keep track of all the persons in each line
 var LINE_REWARDS = [1, 12];	//This sets the reward for each line. If you increase the NUM_LINES, add additional entries here
-var LINE_LENGTHS = [0, 12];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
+var LINE_LENGTHS = [2, 12];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
 ///These control the intermediate reward function
 var INTER_REWARDS = false;	//Set this to true if you want the estimate intermediate reward to display, false if you don't
 var INTER_REWARD = 0;
@@ -27,7 +27,7 @@ var REWARD = 0;
 var PLAYER;
 var SELECTING = true; // indicates whether the player is in the line selection area
 var PLAYER_LEFT = false;
-var PLAYER_START_X = 580;
+var PLAYER_START_X = 680;
 var PERSON_X_SPACING = 30; // X distance between people in lines
 var PERSON_Y_OFFSET = 20; // distance to offset in Y direction when servicing
 var PERSON_FRONT_OF_LINE = 60; //X location of the front of the line
@@ -263,7 +263,7 @@ function setPieces(){
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
 
   // Choose new line length for line 2
-  LINE_LENGTHS[1] = Math.round(drawGaussianSample(10,5,2,15));
+  LINE_LENGTHS[1] = Math.round(drawGaussianSample(12,3,7,17));
 
   // Set people
   for (i=0;i<NUM_LINES;i++) {
@@ -318,17 +318,17 @@ function draw(){
   ctx.fillStyle="#000000";
   for (i=0;i<NUM_LINES;i++){
     ctx.font="20px Georgia";
-    ctx.fillText(LINE_REWARDS[i].toString(),5,LINES[i].Y+10);
+    ctx.fillText(LINE_REWARDS[i].toString(),5,LINES[i].Y+30);
     for (j=0;j<LINES[i].Persons.length;j++){
       if (LINES[i].Persons[j].PC){
-	ctx.drawImage(IMG_PLAYER,LINES[i].Persons[j].X,LINES[i].Persons[j].Y - 10,25,25);
+	ctx.drawImage(IMG_PLAYER,LINES[i].Persons[j].X,LINES[i].Persons[j].Y + 10,25,25);
       } else {
-	ctx.drawImage(IMG_PERSON,LINES[i].Persons[j].X,LINES[i].Persons[j].Y - 10,25,25);
+	ctx.drawImage(IMG_PERSON,LINES[i].Persons[j].X,LINES[i].Persons[j].Y + 10,25,25);
       }
     }
   }
   if (SELECTING) {
-    ctx.drawImage(IMG_PLAYER,PLAYER.X,PLAYER.Y - 10,25,25);
+    ctx.drawImage(IMG_PLAYER,PLAYER.X,PLAYER.Y + 10,25,25);
   }
   ctx.stroke();
   ctx.beginPath();
@@ -367,7 +367,7 @@ function draw(){
   ctx.beginPath();
   for (i=0;i<NUM_LINES;i++){
     // make slots in the waiting area
-    ctx.clearRect(x_start-5,LINES[i].Y-10,10,30);
+    ctx.clearRect(x_start-5,LINES[i].Y+10,10,30);
   }
 
   // Animate the hint message
