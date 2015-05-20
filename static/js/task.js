@@ -499,9 +499,13 @@ function animate(){
 
       if ( ARRIVE[i] == TIC){
         // time for someone to be added
-        if(i==1){
+          
+       if(i==1){
+            
+         if (!Slacking_check){
+             console.log('Are you here :( ');
             if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
-        LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+                LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
             }
             else if (LINE_LENGTHS_NEW > LINE_LENGTHS[i]){
                 console.log("Next length is bigger!!");
@@ -513,14 +517,22 @@ function animate(){
                 }
             }
             else{
-                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
+                console.log('Are you here ');
+                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW){
                     LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
                 }
             }
+         }
+         else  {
+             console.log('Are you here yay');
+             console.log("Line Length" + LINES[i].Persons.length);
+              LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+PERSON_X_SPACING,LINES[i].Y));
+             
+          }   
         }
-          else {
+        else {
               LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-          }
+        }
         
       }
 
@@ -628,10 +640,12 @@ function animate(){
         console.log("Slacking!");
           Slacking_check  = true;
         recordLineData()
+        
         LINES[PLAYER.line].Persons[PLAYER.position + 1].X = LINES[PLAYER.line].Persons[PLAYER.position - 1].X + PERSON_X_SPACING;
-        LINES[PLAYER.line].Persons[PLAYER.position] = LINES[PLAYER.line].Persons[PLAYER.position + 1];
+        LINES[PLAYER.line].Persons[PLAYER.position] = LINES[PLAYER.line].Persons[PLAYER.position + 1];    
         LINES[PLAYER.line].Persons[PLAYER.position + 1] = PLAYER;
         PLAYER.position += 1;
+        
         for(j=PLAYER.position+1;j<LINES[PLAYER.line].Persons.length;j++) {
   	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
         }
@@ -647,6 +661,13 @@ function animate(){
   	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X+PERSON_X_SPACING;
         }
       }
+       else if(PLAYER.line != -1){ 
+           if (PLAYER.position == (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && TIC > (INTERVAL - 5)){
+            Slacking_check = true;
+            recordLineData()
+           
+       }
+       }
     }
 //    }
   } // end of for loop to check for service/arrival
