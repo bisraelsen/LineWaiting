@@ -48,6 +48,8 @@ var START_TIME = 0;
 var TIME_REMAINING = 100.000;//un-rounded time remaining (milliseconds)
 var TIME_REMAINING_RND = 100;//integer time remaining for display
 var TIME = 300; // experiment duration in seconds
+var EpisodeNum = 1;
+var EpisodeRecord = {};
 var LINE_RECORD = [];
 var POS_RECORD =[];
 var TIME_RECORD = [];
@@ -267,12 +269,12 @@ function setPieces(){
   // Choose new line length for line 2
   //LINE_LENGTHS[1] = LINE_LENGTHS_NEW;
   var M = 2;
-  
+
     if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
         LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
     }
-    
-  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));    
+
+  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));
   // Set people
   for (i=0;i<NUM_LINES;i++) {
     LINES[i].Persons = []; //clear out the existing array
@@ -288,6 +290,18 @@ function setPieces(){
   SELECTING = true;
 
   TIC = 0;
+
+  var entry = {'LINES':LINE_RECORD, 'POSITIONS':POS_RECORD, 'TIMES':TIME_RECORD, "KEYS":KEY_RECORD};
+
+  EpisodeRecord[EpisodeNum] = entry;
+
+  EpisodeNum += 1;
+
+  // Clear out arrays
+  LINE_RECORD = [];
+  POS_RECORD = [];
+  TIME_RECORD = [];
+  KEY_RECORD = [];
 
   setTimeout(startAnimation,10);
   REWARDING = false;
@@ -499,9 +513,9 @@ function animate(){
 
       if ( ARRIVE[i] == TIC){
         // time for someone to be added
-          
+
        if(i==1){
-            
+
          if (!Slacking_check){
              console.log('Are you here :( ');
             if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
@@ -527,13 +541,13 @@ function animate(){
              console.log('Are you here yay');
              console.log("Line Length" + LINES[i].Persons.length);
               LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+PERSON_X_SPACING,LINES[i].Y));
-             
-          }   
+
+          }
         }
         else {
               LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
         }
-        
+
       }
 
       if ( SERVICE[i] == TIC){
@@ -640,12 +654,12 @@ function animate(){
         console.log("Slacking!");
           Slacking_check  = true;
         recordLineData()
-        
+
         LINES[PLAYER.line].Persons[PLAYER.position + 1].X = LINES[PLAYER.line].Persons[PLAYER.position - 1].X + PERSON_X_SPACING;
-        LINES[PLAYER.line].Persons[PLAYER.position] = LINES[PLAYER.line].Persons[PLAYER.position + 1];    
+        LINES[PLAYER.line].Persons[PLAYER.position] = LINES[PLAYER.line].Persons[PLAYER.position + 1];
         LINES[PLAYER.line].Persons[PLAYER.position + 1] = PLAYER;
         PLAYER.position += 1;
-        
+
         for(j=PLAYER.position+1;j<LINES[PLAYER.line].Persons.length;j++) {
   	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
         }
@@ -661,11 +675,11 @@ function animate(){
   	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X+PERSON_X_SPACING;
         }
       }
-       else if(PLAYER.line != -1){ 
+       else if(PLAYER.line != -1){
            if (PLAYER.position == (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && TIC > (INTERVAL - 5)){
             Slacking_check = true;
             recordLineData()
-           
+
        }
        }
     }
@@ -714,7 +728,7 @@ function animate(){
     else if (PLAYER_UP && SELECTING && PLAYER.line == -1) {
         getTime();
         var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-    if (difference >1000){    
+    if (difference >1000){
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     PLAYER_UP = false;
@@ -825,17 +839,17 @@ function doKeyDown(evt) {
     }
   }
   if(evt.keyCode == 38) {
-    console.log("hey from up!");  
+    console.log("hey from up!");
     PLAYER_UP = true;
-    
+
     }
     //UP!
-  
+
   if(evt.keyCode == 40) {
     //DOWN!
     console.log("hey from down!");
 //      PLAYER_DOWN = true;
-      
+
 //      console.log("Time at reward" + TIME_AT_REWARD);
 //      console.log("Time remaining" + TIME_REMAINING);
 //      console.log("Difference "+ ((TIME_AT_REWARD) - TIME_REMAINING));
