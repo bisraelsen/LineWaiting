@@ -34,7 +34,7 @@ var PERSON_FRONT_OF_LINE = 60; //X location of the front of the line
 var GAME_BOARD_HEIGHT = 200;
 var SCORE_POS_Y = 40;
 var GAME_BOARD_Y = SCORE_POS_Y + 50;
-var CHA_CHING = new Audio('../static/media/Cha-Ching.mp3');
+var CHA_CHING = new Audio('../static/media/Cha-Ching.m4a');
 var IMG_PERSON = new Image();
 var IMG_PLAYER = new Image();
 var ARRIVE = []; // array to store when people should be added to lines
@@ -274,13 +274,13 @@ function setPieces(){
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
   // Choose new line length for line 2
 //  LINE_LENGTHS[1] = 14;//LINE_LENGTHS_NEW;
-  var M = 3;
-
-    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
-        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
-    }
-
-  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,4,6,16));
+//  var M = 3;
+//
+//    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
+//        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
+//    }
+//
+//  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,4,6,16));
   // Set people
   for (i=0;i<NUM_LINES;i++) {
     LINES[i].Persons = []; //clear out the existing array
@@ -371,11 +371,16 @@ function draw(){
   ctx.fillText("Score:",5,y_score);
   ctx.fillText(PLAYER_SCORE.toString(),140,y_score+1);
   getTime();
-  TIME_REMAINING_RND = Math.round(TIME_REMAINING/1000)
+  TIME_REMAINING_RND = Math.round(TIME_REMAINING/1000);
+  var totalNumberOfSeconds = TIME_REMAINING_RND;
+  var hours = parseInt( totalNumberOfSeconds / 3600 );
+  var minutes = parseInt( (totalNumberOfSeconds - (hours * 3600)) / 60 );
+  var seconds = Math.floor((totalNumberOfSeconds - ((hours * 3600) + (minutes * 60))));
+  
   ctx.font="25px Georgia";
-  ctx.fillText("Seconds Remaining:",x_start-270,y_score-2);
+  ctx.fillText("Time Remaining:",x_start-270,y_score-2);
   ctx.font="40px Georgia";
-  ctx.fillText(TIME_REMAINING_RND.toString(),x_start-40,y_score+1);
+  ctx.fillText(minutes.toString() + ":" + (seconds  < 10 ? "0" + seconds : seconds.toString()) ,x_start-40,y_score+1);
   ctx.font="20px Georgia";
   ctx.fillText("Controls:",5,y_ctrls);
   ctx.fillText("- Left Arrow - Enter line, advance in the line",5,y_ctrls+20);
