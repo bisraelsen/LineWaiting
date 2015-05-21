@@ -274,7 +274,7 @@ function setPieces(){
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
   // Choose new line length for line 2
 //  LINE_LENGTHS[1] = 14;//LINE_LENGTHS_NEW;
-  var M = 2;
+  var M = 3;
 
     if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
         LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
@@ -575,7 +575,7 @@ function animate(){
             }
             else{
                 console.log('Are you here ');
-                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW){
+                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW || Slacking_check){
                     LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
                 }
             }
