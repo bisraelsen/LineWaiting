@@ -16,7 +16,7 @@ var PLAYER_SCORE = 0;	//Keeps track of the players score
 var NUM_LINES = 2;	//Change to add more lines to the program 3 works well, I think
 var LINES = [];		//This is an array that will be used to keep track of all the persons in each line
 var LINE_REWARDS = [1, 12];	//This sets the reward for each line. If you increase the NUM_LINES, add additional entries here
-var LINE_LENGTHS = [2, 12];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
+var LINE_LENGTHS = [0, 12];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
 ///These control the intermediate reward function
 var INTER_REWARDS = false;	//Set this to true if you want the estimate intermediate reward to display, false if you don't
 var INTER_REWARD = 0;
@@ -63,6 +63,9 @@ var AnimateHandle; //will hold the Interval handle so animate can be stopped whe
 var DrawHandle;
 var save2ServerHandle; //handle for the save2Server that will be called until it is successful
 var TIME_AT_REWARD = 300*1000;
+var TIME_AT_ENTER;
+var TIME_AT_SELECT; 
+var timeAtRew = TIME_AT_REWARD;
 var Slacking_check = false;
 var LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));
 var tstWOInstructions = false; //for testing and skipping instructions
@@ -224,7 +227,7 @@ function init() {
   console.log("Hi from init!");
   console.log("condition is " + INTER_REWARDS);
   var c = document.getElementById("myCanvas");
-
+ 
   //set people in lines
   for (i=0;i<NUM_LINES;i++) {
     LINES.push(new Line(GAME_BOARD_Y + GAME_BOARD_HEIGHT/NUM_LINES*(i)));
@@ -232,6 +235,7 @@ function init() {
     //SERVICE.push(Math.round(drawGaussianSample(INTERVAL-INTERVAL_SFT,INTERVAL_SFT,0,INTERVAL)));
     ARRIVE.push(INTERVAL);
     SERVICE.push(INTERVAL);
+      
     for (j=0;j<LINE_LENGTHS[i];j++) {
       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
       console.log(LINES[i].Persons[j].X);
@@ -260,19 +264,19 @@ function startAnimation(){
 function setPieces(){
   REWARDING = true;
   console.log("Hi from set!");
-  TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME)); // Record when Reward happened
-  // Begin resetting board
+    
+    // Begin resetting board
   var c = document.getElementById("myCanvas");
   var ctx = c.getContext("2d");
 
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
   // Choose new line length for line 2
-  //LINE_LENGTHS[1] = LINE_LENGTHS_NEW;
-  var M = 2;
-
-    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
-        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
-    }
+  LINE_LENGTHS[1] = 14;//LINE_LENGTHS_NEW;
+//  var M = 2;
+//
+//    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
+//        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
+//    }
 
   LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));
   // Set people
@@ -308,8 +312,14 @@ function setPieces(){
   console.log("Bye from set");
 }
 
-function reward() {
+function reward(i) {
   console.log("Reward!");
+  
+  // Record when Reward happened
+    
+   
+  console.log("It takes so long to finish a loop: "+(TIME_AT_SELECT-TIME_AT_REWARD));  
+//  if ((TIME_AT_SELECT - TIME_AT_REWARD) > 1000){   
   LINES[i].isServicing = false;
   LINES[i].Persons.shift();
   LINES[i].Persons.pop();
@@ -317,7 +327,7 @@ function reward() {
   REWARD = LINE_REWARDS[PLAYER.line];
   REWARD_TIC = 1;
   CHA_CHING.play();
-
+//  }
   // reset board
   setPieces();
 }
@@ -502,11 +512,18 @@ function animate(){
     if (LINE_LENGTHS[i] == 0) {
       if (PLAYER.line == i && !SELECTING) {
         //stop animation
+        TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME)); 
+        if ((TIME_AT_SELECT-TIME_AT_REWARD)>1000){  
         clearInterval(AnimateHandle);
         clearInterval(DrawHandle);
+           console.log("i= "+i);
         if (!REWARDING){
           //Dont call more than once
-          reward();
+         
+            reward(i);
+            
+       
+          }
         }
       }
     } else {
@@ -514,39 +531,39 @@ function animate(){
       if ( ARRIVE[i] == TIC){
         // time for someone to be added
 
-       if(i==1){
-
-         if (!Slacking_check){
-             console.log('Are you here :( ');
-            if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
-                LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-            }
-            else if (LINE_LENGTHS_NEW > LINE_LENGTHS[i]){
-                console.log("Next length is bigger!!");
-                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
-                LINES[i].add2people(new Person(LINES[i].getNextXPos(),LINES[i].Y), new Person(LINES[i].getNextXPos() + PERSON_X_SPACING , LINES[i].Y) );
-                }
-                else {
-                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-                }
-            }
-            else{
-                console.log('Are you here ');
-                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW){
-                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-                }
-            }
-         }
-         else  {
-             console.log('Are you here yay');
-             console.log("Line Length" + LINES[i].Persons.length);
-              LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+PERSON_X_SPACING,LINES[i].Y));
-
-          }
-        }
-        else {
+//       if(i==1){
+//
+//         if (!Slacking_check){
+//             console.log('Are you here :( ');
+//            if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
+//                LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+//            }
+//            else if (LINE_LENGTHS_NEW > LINE_LENGTHS[i]){
+//                console.log("Next length is bigger!!");
+//                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
+//                LINES[i].add2people(new Person(LINES[i].getNextXPos(),LINES[i].Y), new Person(LINES[i].getNextXPos() + PERSON_X_SPACING , LINES[i].Y) );
+//                }
+//                else {
+//                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+//                }
+//            }
+//            else{
+//                console.log('Are you here ');
+//                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW){
+//                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+//                }
+//            }
+//         }
+//         else  {
+//             console.log('Are you here yay');
+//             console.log("Line Length" + LINES[i].Persons.length);
+//              LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+PERSON_X_SPACING,LINES[i].Y));
+//
+//          }
+//        }
+//        else {
               LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-        }
+//        }
 
       }
 
@@ -622,11 +639,13 @@ function animate(){
         	}
         } else if (PLAYER.position == 0 && PLAYER.X <= PERSON_FRONT_OF_LINE) {
           //stop animation
+          TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));    
           clearInterval(AnimateHandle);
           clearInterval(DrawHandle);
+             
           if (!REWARDING){
             //Dont call more than once
-            reward();
+            reward(i);
           }
         }
       }
@@ -636,6 +655,9 @@ function animate(){
       //If player has pressed the left arrow and needs to be moved up
       if(PLAYER_LEFT && PLAYER.position != -1 && PLAYER.position != 0) {
           console.log(PLAYER.position);
+//          if (PLAYER.line == 0){
+//              TIME_AT_ENTER = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
+//          }
           if((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PERSON_X_SPACING && !LINES[i].isServicing) {
             // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
             playerMoveLeft();
@@ -721,18 +743,19 @@ function animate(){
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
   else if (PLAYER_UP && SELECTING && PLAYER.line != 0 && PLAYER.line !=-1) {
     PLAYER.line -= 1;
-    PLAYER.Y = LINES[PLAYER.line].Y;
+    PLAYER.Y = LINES[PLAYER.line].Y;  
     PLAYER_UP = false;
   }
     //comment above when fixed initial waiting position
     else if (PLAYER_UP && SELECTING && PLAYER.line == -1) {
         getTime();
-        var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-    if (difference >1000){
+//        var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
+//    if (difference >1000){
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
+    TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
     PLAYER_UP = false;
-    }
+//    } 
   }
 
   //If the player has pressed the down key and is intending to change lines
@@ -768,6 +791,7 @@ function animate(){
   else if (PLAYER_DOWN && SELECTING && PLAYER.line != LINES.length-1 && PLAYER.line != -1) {
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
+    
     PLAYER_DOWN = false;
   }
         //comment above when fixed initial waiting position
@@ -775,11 +799,13 @@ function animate(){
     else if (PLAYER_DOWN && SELECTING && PLAYER.line == -1) {
         getTime();
         var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-        if (difference >1000){
+//     if (difference >1000){
     PLAYER.line += 2;
     PLAYER.Y = LINES[PLAYER.line].Y;
+        TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+        console.log("TIme at select : " +TIME_AT_SELECT);
     PLAYER_DOWN = false;
-        }
+//     }
   }
 
 
@@ -870,6 +896,7 @@ function doKeyDown(evt) {
     LINES[PLAYER.line].addPerson(PLAYER);
     recordLineData()
     SELECTING = false;
+    
   }
 
 }
