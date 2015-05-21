@@ -280,7 +280,7 @@ function setPieces(){
         LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
     }
 
-  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));
+  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,4,6,16));
   // Set people
   for (i=0;i<NUM_LINES;i++) {
     LINES[i].Persons = []; //clear out the existing array
@@ -557,28 +557,28 @@ function animate(){
       if ( ARRIVE[i] == TIC){
         // time for someone to be added
 
-//       if(i==1){
-//
+       if(i==1){
+
 //         if (!Slacking_check){
-//             console.log('Are you here :( ');
-//            if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
-//                LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-//            }
-//            else if (LINE_LENGTHS_NEW > LINE_LENGTHS[i]){
-//                console.log("Next length is bigger!!");
-//                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
-//                LINES[i].add2people(new Person(LINES[i].getNextXPos(),LINES[i].Y), new Person(LINES[i].getNextXPos() + PERSON_X_SPACING , LINES[i].Y) );
-//                }
-//                else {
-//                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-//                }
-//            }
-//            else{
-//                console.log('Are you here ');
-//                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW){
-//                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-//                }
-//            }
+             console.log('Are you here :( ');
+            if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
+                LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+            }
+            else if (LINE_LENGTHS_NEW > LINE_LENGTHS[i]){
+                console.log("Next length is bigger!!");
+                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
+                LINES[i].add2people(new Person(LINES[i].getNextXPos(),LINES[i].Y), new Person(LINES[i].getNextXPos() + PERSON_X_SPACING , LINES[i].Y) );
+                }
+                else {
+                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+                }
+            }
+            else{
+                console.log('Are you here ');
+                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW){
+                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+                }
+            }
 //         }
 //         else  {
 //             console.log('Are you here yay');
@@ -586,10 +586,10 @@ function animate(){
 //              LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+PERSON_X_SPACING,LINES[i].Y));
 //
 //          }
-//        }
-//        else {
+        }
+        else {
               LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-//        }
+        }
 
       }
 
