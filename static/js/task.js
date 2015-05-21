@@ -511,42 +511,45 @@ function animate(){
   //Walk through the lines and check if any of them is scheduled
   // for a service event or an arrival
   for (i=0;i<NUM_LINES;i++){
-    if (LINE_LENGTHS[i] == 0) {
+  
+        if (LINE_LENGTHS[i] == 0) {
         
-      if (SELECTING){
-          TIME_AT_ENTER = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
-      }
-      else if (PLAYER.line == i && !SELECTING) {
-        //stop animation
-          TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME)); 
-          
-//          if(FlagLineChange){
-//              if ((TIME_CHANGE_LINE-TIME_AT_REWARD)>1000){  
-//                clearInterval(AnimateHandle);
-//                clearInterval(DrawHandle);
-//                   console.log("i= "+i);
-//                if (!REWARDING){
-//                  //Dont call more than once
-//
-//                    reward(i);
-//
-//
-//                  }
-//              }
-//              FlagLineChange=false;
-//          }
-//        else{
-            if ((TIME_AT_ENTER-TIME_AT_REWARD) >1000){  
-            clearInterval(AnimateHandle);
-            clearInterval(DrawHandle);
-               console.log("i= "+i);
-            if (!REWARDING){
-              //Dont call more than once
+          if (SELECTING){
+              TIME_AT_ENTER = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+              
+          }
+          else if (PLAYER.line == i && !SELECTING) {
+            //stop animation
+              TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME)); 
 
-                reward(i);
+              if(FlagLineChange){
+                  if ((TIME_CHANGE_LINE-TIME_AT_REWARD)>1000){  
+                    clearInterval(AnimateHandle);
+                    clearInterval(DrawHandle);
+                       console.log("i= "+i);
+                    if (!REWARDING){
+                      //Dont call more than once
+    
+                        reward(i);
+    
+    
+                      }
+                      FlagLineChange=false;
+                  }
+                  
+              }
+            else{
+                if ((TIME_AT_ENTER-TIME_AT_REWARD) >1000){  
+                clearInterval(AnimateHandle);
+                clearInterval(DrawHandle);
+                   console.log("i= "+i);
+                if (!REWARDING){
+                  //Dont call more than once
+
+                    reward(i);
 
 
-//              }
+              }
             }
           }
       }
@@ -736,8 +739,8 @@ function animate(){
 
   //If the player has pressed the UP key and is intending to change lines
   if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && !LINES[PLAYER.line-1].isServicing && !SELECTING) {
-      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
-        FlagLineChange=true;
+//      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
+//        FlagLineChange=true;
 //        console.log("Ichanged at : "+TIME_CHANGE_LINE);
     if (PLAYER.position != 0) {
         
@@ -783,9 +786,9 @@ function animate(){
   else if (PLAYER_UP && SELECTING && PLAYER.line != 0 && PLAYER.line !=-1) {
     PLAYER.line -= 1;
     PLAYER.Y = LINES[PLAYER.line].Y;  
-//      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
-//        FlagLineChange=true;
-//        console.log("Ichanged at : "+TIME_CHANGE_LINE);
+      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
+        FlagLineChange=true;
+        console.log("Ichanged at : "+TIME_CHANGE_LINE);
     PLAYER_UP = false;
   }
     //comment above when fixed initial waiting position
@@ -909,7 +912,8 @@ function doKeyDown(evt) {
   if(evt.keyCode == 38) {
     console.log("hey from up!");
     PLAYER_UP = true;
-
+    TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
+    FlagLineChange=true;
     }
     //UP!
 
