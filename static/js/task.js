@@ -65,6 +65,8 @@ var save2ServerHandle; //handle for the save2Server that will be called until it
 var TIME_AT_REWARD = 300*1000;
 var TIME_AT_ENTER;
 var TIME_AT_SELECT; 
+var TIME_CHANGE_LINE;
+var FlagLineChange=false;
 var timeAtRew = TIME_AT_REWARD;
 var Slacking_check = false;
 var LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));
@@ -271,12 +273,12 @@ function setPieces(){
 
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
   // Choose new line length for line 2
-  LINE_LENGTHS[1] = 14;//LINE_LENGTHS_NEW;
-//  var M = 2;
-//
-//    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
-//        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
-//    }
+//  LINE_LENGTHS[1] = 14;//LINE_LENGTHS_NEW;
+  var M = 2;
+
+    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
+        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
+    }
 
   LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));
   // Set people
@@ -510,22 +512,46 @@ function animate(){
   // for a service event or an arrival
   for (i=0;i<NUM_LINES;i++){
     if (LINE_LENGTHS[i] == 0) {
-      if (PLAYER.line == i && !SELECTING) {
-        //stop animation
-        TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME)); 
-        if ((TIME_AT_SELECT-TIME_AT_REWARD)>1000){  
-        clearInterval(AnimateHandle);
-        clearInterval(DrawHandle);
-           console.log("i= "+i);
-        if (!REWARDING){
-          //Dont call more than once
-         
-            reward(i);
-            
-       
-          }
-        }
+        
+      if (SELECTING){
+          TIME_AT_ENTER = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
       }
+      else if (PLAYER.line == i && !SELECTING) {
+        //stop animation
+          TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME)); 
+          
+//          if(FlagLineChange){
+//              if ((TIME_CHANGE_LINE-TIME_AT_REWARD)>1000){  
+//                clearInterval(AnimateHandle);
+//                clearInterval(DrawHandle);
+//                   console.log("i= "+i);
+//                if (!REWARDING){
+//                  //Dont call more than once
+//
+//                    reward(i);
+//
+//
+//                  }
+//              }
+//              FlagLineChange=false;
+//          }
+//        else{
+            if ((TIME_AT_ENTER-TIME_AT_REWARD) >1000){  
+            clearInterval(AnimateHandle);
+            clearInterval(DrawHandle);
+               console.log("i= "+i);
+            if (!REWARDING){
+              //Dont call more than once
+
+                reward(i);
+
+
+//              }
+            }
+          }
+      }
+        
+        
     } else {
 
       if ( ARRIVE[i] == TIC){
@@ -710,8 +736,15 @@ function animate(){
 
   //If the player has pressed the UP key and is intending to change lines
   if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && !LINES[PLAYER.line-1].isServicing && !SELECTING) {
+      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
+        FlagLineChange=true;
+//        console.log("Ichanged at : "+TIME_CHANGE_LINE);
     if (PLAYER.position != 0) {
+        
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
+//        TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
+//        FlagLineChange=true;
+//        console.log("Ichanged at : "+TIME_CHANGE_LINE);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
 //	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].getNextXPos();
       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;  // made change here- Shruthi
@@ -720,6 +753,9 @@ function animate(){
     if (PLAYER.position == 0) {
       LINES[PLAYER.line].Persons.shift();
       LINES[PLAYER.line].Persons[0].X = PERSON_FRONT_OF_LINE;
+//        TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
+//        FlagLineChange=true;
+//        console.log("Ichanged at : "+TIME_CHANGE_LINE);
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
 //	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].getNextXPos();
       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X+PERSON_X_SPACING;
@@ -739,11 +775,17 @@ function animate(){
   // give some visual feedback that the button press was received
   else if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && LINES[PLAYER.line-1].isServicing && !SELECTING) {
     PLAYER.Y -= 1;
+      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
+        FlagLineChange=true;
+        console.log("Ichanged at : "+TIME_CHANGE_LINE);
   }
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
   else if (PLAYER_UP && SELECTING && PLAYER.line != 0 && PLAYER.line !=-1) {
     PLAYER.line -= 1;
     PLAYER.Y = LINES[PLAYER.line].Y;  
+//      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
+//        FlagLineChange=true;
+//        console.log("Ichanged at : "+TIME_CHANGE_LINE);
     PLAYER_UP = false;
   }
     //comment above when fixed initial waiting position
