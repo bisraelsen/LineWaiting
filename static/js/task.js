@@ -274,13 +274,13 @@ function setPieces(){
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
   // Choose new line length for line 2
 //  LINE_LENGTHS[1] = 14;//LINE_LENGTHS_NEW;
-//  var M = 3;
-//
-//    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
-//        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
-//    }
-//
-//  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,4,6,16));
+  var M = 3;
+
+    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
+        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
+    }
+
+  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,4,6,16));
   // Set people
   for (i=0;i<NUM_LINES;i++) {
     LINES[i].Persons = []; //clear out the existing array
