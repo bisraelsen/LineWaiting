@@ -99,7 +99,7 @@ var pages = [
 "instructions/instruct-p1.html",
 "instructions/instruct-p2.html",
 "instructions/instruct-p3.html",
-"instructions/instruct-p3.html",
+"instructions/instruct-p3_a.html",
 "instructions/instruct-p4.html",
 "instructions/instruct-p5.html",
 "instructions/instruct-p6_1.html",
@@ -127,7 +127,7 @@ if (!tstWOInstructions)
     "instructions/instruct-p1.html",
     "instructions/instruct-p2.html",
     "instructions/instruct-p3.html",
-    "instructions/instruct-p3.html",
+    "instructions/instruct-p3_a.html",
     "instructions/instruct-p4.html",
     "instructions/instruct-p5.html",
     "instructions/instruct-p6_2.html"
