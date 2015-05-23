@@ -50,6 +50,7 @@ var TIME_REMAINING_RND = 100;//integer time remaining for display
 var TIME = 300; // experiment duration in seconds
 var EpisodeNum = 1;
 var EpisodeRecord = {};
+var LONG_LINE_RECORD =[];
 var LINE_RECORD = [];
 var POS_RECORD =[];
 var TIME_RECORD = [];
@@ -68,7 +69,10 @@ var TIME_AT_SELECT;
 var TIME_CHANGE_LINE;
 var FlagLineChange=false;
 var timeAtRew = TIME_AT_REWARD;
+var SLACKING_RECORD=[];
 var Slacking_check = false;
+var DEFECT_RECORD = [];
+var Defect_check = false;
 var LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));
 var tstWOInstructions = false; //for testing and skipping instructions
 
@@ -94,6 +98,7 @@ var mycounterbalance = counterbalance;  // they tell you which condition you hav
 var pages = [
 "instructions/instruct-p1.html",
 "instructions/instruct-p2.html",
+"instructions/instruct-p3.html",
 "instructions/instruct-p3.html",
 "instructions/instruct-p4.html",
 "instructions/instruct-p5.html",
@@ -121,6 +126,7 @@ if (!tstWOInstructions)
     var instructionPages = [ // add as a list as many pages as you like
     "instructions/instruct-p1.html",
     "instructions/instruct-p2.html",
+    "instructions/instruct-p3.html",
     "instructions/instruct-p3.html",
     "instructions/instruct-p4.html",
     "instructions/instruct-p5.html",
@@ -297,7 +303,7 @@ function setPieces(){
 
   TIC = 0;
 
-  var entry = {'LINES':LINE_RECORD, 'POSITIONS':POS_RECORD, 'TIMES':TIME_RECORD, "KEYS":KEY_RECORD};
+  var entry = {'LINES':LINE_RECORD, 'POSITIONS':POS_RECORD, 'TIMES':TIME_RECORD, "KEYS":KEY_RECORD, "LONG LINE":LONG_LINE_RECORD, "SLACKING" : Slacking_check, "DEFECT" :Defect_check};
 
   EpisodeRecord[EpisodeNum] = entry;
 
@@ -465,6 +471,12 @@ function recordLineData(){
   console.log(POS_RECORD);
 };
 
+function recordLongLine(){
+    LONG_LINE_RECORD.push(LINES[1].Persons.length);
+    console.log(LONG_LINE_RECORD);
+};
+
+
 //For recording key stroke history
 function recordKeyData(stroke){
   KEY_RECORD.push(stroke);
@@ -540,6 +552,7 @@ function animate(){
     
                       }
                       FlagLineChange=false;
+                      Defect_check = false;
                   }
                   
               }
@@ -722,7 +735,7 @@ function animate(){
       } else if (PLAYER.position == 0 && PLAYER.X > PERSON_FRONT_OF_LINE && TIC > (INTERVAL - 5) && !PLAYER_LEFT) {
         console.log("Slacking at the front!");
           Slacking_check  = true;
-        recordTrialData()
+        recordLineData()
         LINES[PLAYER.line].Persons[PLAYER.position + 1].X = PERSON_FRONT_OF_LINE;
         LINES[PLAYER.line].Persons[0] = LINES[PLAYER.line].Persons[1];
         LINES[PLAYER.line].Persons[1] = PLAYER;
@@ -744,15 +757,10 @@ function animate(){
 
   //If the player has pressed the UP key and is intending to change lines
   if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && !LINES[PLAYER.line-1].isServicing && !SELECTING) {
-//      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
-//        FlagLineChange=true;
-//        console.log("Ichanged at : "+TIME_CHANGE_LINE);
+   Defect_check = true;
     if (PLAYER.position != 0) {
         
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
-//        TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
-//        FlagLineChange=true;
-//        console.log("Ichanged at : "+TIME_CHANGE_LINE);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
 //	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].getNextXPos();
       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X + PERSON_X_SPACING;  // made change here- Shruthi
@@ -761,9 +769,6 @@ function animate(){
     if (PLAYER.position == 0) {
       LINES[PLAYER.line].Persons.shift();
       LINES[PLAYER.line].Persons[0].X = PERSON_FRONT_OF_LINE;
-//        TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
-//        FlagLineChange=true;
-//        console.log("Ichanged at : "+TIME_CHANGE_LINE);
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
 //	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].getNextXPos();
       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X+PERSON_X_SPACING;
@@ -783,17 +788,15 @@ function animate(){
   // give some visual feedback that the button press was received
   else if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && LINES[PLAYER.line-1].isServicing && !SELECTING) {
     PLAYER.Y -= 1;
-      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
-        FlagLineChange=true;
-        console.log("Ichanged at : "+TIME_CHANGE_LINE);
+      Defect_check = true;
   }
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
   else if (PLAYER_UP && SELECTING && PLAYER.line != 0 && PLAYER.line !=-1) {
     PLAYER.line -= 1;
     PLAYER.Y = LINES[PLAYER.line].Y;  
-      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
-        FlagLineChange=true;
-        console.log("Ichanged at : "+TIME_CHANGE_LINE);
+//      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
+//        FlagLineChange=true;
+//        console.log("Ichanged at : "+TIME_CHANGE_LINE);
     PLAYER_UP = false;
   }
     //comment above when fixed initial waiting position
@@ -959,6 +962,7 @@ function end_game(){
   key_record = JSON.stringify(KEY_RECORD);
   key_time_record = JSON.stringify(KEY_TIME_RECORD);
   player_score = PLAYER_SCORE;
+  episode_record = JSON.stringify(EpisodeRecord);
 
   //Display "saving" on the board
   var c = document.getElementById("myCanvas");
@@ -978,7 +982,8 @@ function end_game(){
 				    'keys':key_record,
 				    'keytimes':key_time_record,
 				    'rewards':reward_record,
-				    'Score':player_score}
+				    'Score':player_score,
+                    'Episode Data':episode_record}
 				  );
   // save data to server, compute bonus
 
