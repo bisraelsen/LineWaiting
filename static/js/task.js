@@ -389,8 +389,8 @@ function draw(){
   ctx.fillText(minutes.toString() + ":" + (seconds  < 10 ? "0" + seconds : seconds.toString()) ,x_start-40,y_score+1);
   ctx.font="20px Georgia";
   ctx.fillText("Controls:",5,y_ctrls);
-  ctx.fillText("- Left Arrow - Enter line, advance in the line",5,y_ctrls+20);
-  ctx.fillText("- Up/Down arrow - select/switch lines",5,y_ctrls+40);
+  ctx.fillText("- Left Arrow - Enter queue, advance in the queue",5,y_ctrls+20);
+  ctx.fillText("- Up/Down arrow - select/switch queues",5,y_ctrls+40);
   if (INTER_REWARDS > 0){
     ctx.fillText("- The green point total you see after each move is a prediction of the",5,y_ctrls+60)
     ctx.fillText("  value of that move if you make it to the front of the line.",5,y_ctrls+80)
@@ -955,12 +955,12 @@ function doKeyDown(evt) {
 
 }
 function end_game(){
-  line_record = JSON.stringify(LINE_RECORD);
-  pos_record = JSON.stringify(POS_RECORD);
-  time_record = JSON.stringify(TIME_RECORD);
-  reward_record = JSON.stringify(REWARD_RECORD);
-  key_record = JSON.stringify(KEY_RECORD);
-  key_time_record = JSON.stringify(KEY_TIME_RECORD);
+//  line_record = JSON.stringify(LINE_RECORD);
+//  pos_record = JSON.stringify(POS_RECORD);
+//  time_record = JSON.stringify(TIME_RECORD);
+//  reward_record = JSON.stringify(REWARD_RECORD);
+//  key_record = JSON.stringify(KEY_RECORD);
+//  key_time_record = JSON.stringify(KEY_TIME_RECORD);
   player_score = PLAYER_SCORE;
   episode_record = JSON.stringify(EpisodeRecord);
 
