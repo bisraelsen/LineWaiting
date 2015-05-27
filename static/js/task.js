@@ -47,12 +47,14 @@ var PLAYER_DOWN = false;
 var START_TIME = 0;
 var TIME_REMAINING = 100.000;//un-rounded time remaining (milliseconds)
 var TIME_REMAINING_RND = 100;//integer time remaining for display
+var TIME_AT_KEY;
 var TIME = 300; // experiment duration in seconds
 var EpisodeNum = 1;
 var EpisodeRecord = {};
 var LONG_LINE_RECORD =[];
 var LINE_RECORD = [];
-var POS_RECORD =[];
+var SLACKING_POS_RECORD =[];
+var DEFECT_POS_RECORD=[];
 var TIME_RECORD = [];
 var REWARD_RECORD = [];
 var REWARDING = false; //tracks when player is being rewarded
@@ -70,12 +72,16 @@ var TIME_CHANGE_LINE;
 var FlagLineChange=false;
 var timeAtRew = TIME_AT_REWARD;
 var SLACKING_RECORD=[];
+var SLACKING_TIME=[];
 var Slacking_check = false;
+var wasSalcking;
 var DEFECT_RECORD = [];
+var DEFECT_TIME = [];
 var Defect_check = false;
 var LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));
 var tstWOInstructions = false; //for testing and skipping instructions
-
+var action;
+var EpisodeFlag =0;
 //Randomly decide between having intermediate rewards on or off
 if (Math.round(Math.random()) == 0){
   INTER_REWARDS = false;
@@ -89,7 +95,7 @@ else{
 //force condition to get balanced data
 INTER_REWARDS = false;
 // set condition in database
-psiTurk.taskdata.set('cond',INTER_REWARDS)
+//psiTurk.taskdata.set('cond',INTER_REWARDS)
 
 var mycounterbalance = counterbalance;  // they tell you which condition you have been assigned to
 // they are not used in the stroop code but may be useful to you
@@ -265,6 +271,7 @@ function init() {
 }
 
 function startAnimation(){
+  
   AnimateHandle = setInterval(animate,ANIMATE_INTERVAL);
   DrawHandle = setInterval(draw,ANIMATE_INTERVAL);
 }
@@ -302,16 +309,16 @@ function setPieces(){
   SELECTING = true;
 
   TIC = 0;
-
-  var entry = {'LINES':LINE_RECORD, 'POSITIONS':POS_RECORD, 'TIMES':TIME_RECORD, "KEYS":KEY_RECORD, "LONG LINE":LONG_LINE_RECORD, "SLACKING" : Slacking_check, "DEFECT" :Defect_check};
-
-  EpisodeRecord[EpisodeNum] = entry;
+//
+//  var entry = {'LINES':LINE_RECORD, 'POSITIONS':POS_RECORD, 'TIMES':TIME_RECORD, "KEYS":KEY_RECORD, "LONG LINE":LONG_LINE_RECORD, "SLACKING" : Slacking_check, "DEFECT" :Defect_check};
+//
+//  EpisodeRecord[EpisodeNum] = entry;
 
   EpisodeNum += 1;
-
+  EpisodeFlag = 0;
   // Clear out arrays
   LINE_RECORD = [];
-  POS_RECORD = [];
+//  POS_RECORD = [];
   TIME_RECORD = [];
   KEY_RECORD = [];
 
@@ -454,37 +461,63 @@ function getTime(){
 }
 
 //For recording line history data
-function recordRewardData(){
-  REWARD_RECORD.push(REWARD);
-  getTime();
-  REWARD_RECORD.push(TIME_REMAINING);
-  console.log(REWARD_RECORD);
+//function recordRewardData(){
+//  REWARD_RECORD.push(REWARD);
+//  getTime();
+//  REWARD_RECORD.push(TIME_REMAINING);
+//  console.log(REWARD_RECORD);
+//};
+//
+////For recording line history data
+//function recordLineData(){
+//  LINE_RECORD.push(PLAYER.line); 
+//  LONG_LINE_RECORD.push(LINES[1].Persons.length);
+//  getTime();
+//  TIME_RECORD.push(TIME_REMAINING);
+//  console.log(LINE_RECORD);
+//  console.log(POS_RECORD);
+//}
+//
+//function recordSlackingData(){
+//    SLACKING_RECORD.push(Slacking_check);
+//    SLACKING_POS_RECORD.push(PLAYER.position);
+//    getTime();
+//    SLACKING_TIME.push(TIME_REMAINING);
+//};
+//
+//function recordDefectData(){
+//    DEFECT_RECORD.push(Defect_check);
+//    DEFECT_POS_RECORD.push(PLAYER.position);
+//    getTime();
+//    DEFECT_TIME.push(TIME_REMAINING);
+//};
+//
+////For recording key stroke history
+//function recordKeyData(stroke){
+//  KEY_RECORD.push(stroke);
+//  getTime();
+//  KEY_TIME_RECORD.push(TIME_REMAINING);
+//  //console.log(LINE_RECORD);
+//};
+
+function dataKeyStroke(){
+    var data = new Object();
+    data.action = action;   //to be defined
+    data.longLine = LINES[1].Persons.length;
+    data.lineNo  = PLAYER.line;
+    data.positionInLine = PLAYER.position;
+    data.slackCheck = wasSalcking;
+    data.episodeFlag = EpisodeFlag; //to be defined
+    data.timeRemaining = TIME_AT_KEY/1000;
+    data.reward = REWARD;
+    
+    data = JSON.stringify(data);
+    console.log(data);
+    psiTurk.recordTrialData(data);
 };
-
-//For recording line history data
-function recordLineData(){
-  LINE_RECORD.push(PLAYER.line);
-  POS_RECORD.push(PLAYER.position);
-  getTime();
-  TIME_RECORD.push(TIME_REMAINING);
-  console.log(LINE_RECORD);
-  console.log(POS_RECORD);
-};
-
-function recordLongLine(){
-    LONG_LINE_RECORD.push(LINES[1].Persons.length);
-    console.log(LONG_LINE_RECORD);
-};
-
-
-//For recording key stroke history
-function recordKeyData(stroke){
-  KEY_RECORD.push(stroke);
-  getTime();
-  KEY_TIME_RECORD.push(TIME_REMAINING);
-  //console.log(LINE_RECORD);
-};
-
+    
+    
+    
 //This is called repeatedly to update the state of the game and
 // animate the lines
 function animate(){
@@ -511,7 +544,7 @@ function animate(){
     if (REWARD_TIC > 50){
       REWARD_TIC = 0;
       PLAYER_SCORE += REWARD;
-      recordRewardData();
+//      recordRewardData();
       REWARD = 0;
     }
   }
@@ -539,7 +572,7 @@ function animate(){
             //stop animation
               TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME)); 
 
-              if(FlagLineChange){
+              if(Defect_check){
                   if ((TIME_CHANGE_LINE-TIME_AT_REWARD)>1000){  
                     clearInterval(AnimateHandle);
                     clearInterval(DrawHandle);
@@ -680,7 +713,7 @@ function animate(){
         	  LINES[i].Persons.shift();
         	  PLAYER.position -= 1;
         	  LINES[i].isServicing = false;
-        	  recordLineData();
+        	  //recordLineData();
         	  console.log("Player pos");
         	  console.log(PLAYER.position);
         	}
@@ -707,10 +740,17 @@ function animate(){
 //          }
           if((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PERSON_X_SPACING && !LINES[i].isServicing) {
             // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
+            action = "Advance";
+            TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
             playerMoveLeft();
+          }
+          else {
+              actions = "Trying to advance";
           }
       } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X >= PERSON_FRONT_OF_LINE && !LINES[i].isServicing) {
         console.log("Last step!");
+        action = "Advance";  
+        TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
         PLAYER.X = PERSON_FRONT_OF_LINE;
         for(j=1;j<LINES[PLAYER.line].Persons.length;j++) {
           //loop through players line and shift x position of other people
@@ -722,7 +762,8 @@ function animate(){
       if((PLAYER.position > 0) && TIC > (INTERVAL - 5) && PLAYER.position < (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && ((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > 35)) {
         console.log("Slacking!");
           Slacking_check  = true;
-        recordLineData()
+          wasSalcking = Slacking_check;
+        //recordLineData()
 
         LINES[PLAYER.line].Persons[PLAYER.position + 1].X = LINES[PLAYER.line].Persons[PLAYER.position - 1].X + PERSON_X_SPACING;
         LINES[PLAYER.line].Persons[PLAYER.position] = LINES[PLAYER.line].Persons[PLAYER.position + 1];
@@ -735,7 +776,8 @@ function animate(){
       } else if (PLAYER.position == 0 && PLAYER.X > PERSON_FRONT_OF_LINE && TIC > (INTERVAL - 5) && !PLAYER_LEFT) {
         console.log("Slacking at the front!");
           Slacking_check  = true;
-        recordLineData()
+          wasSalcking = Slacking_check;
+        //recordLineData()
         LINES[PLAYER.line].Persons[PLAYER.position + 1].X = PERSON_FRONT_OF_LINE;
         LINES[PLAYER.line].Persons[0] = LINES[PLAYER.line].Persons[1];
         LINES[PLAYER.line].Persons[1] = PLAYER;
@@ -747,7 +789,8 @@ function animate(){
        else if(PLAYER.line != -1){
            if (PLAYER.position == (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && TIC > (INTERVAL - 5)){
             Slacking_check = true;
-            recordLineData()
+            wasSalcking = Slacking_check;
+//            recordLineData()
 
        }
        }
@@ -758,6 +801,8 @@ function animate(){
   //If the player has pressed the UP key and is intending to change lines
   if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && !LINES[PLAYER.line-1].isServicing && !SELECTING) {
    Defect_check = true;
+      action = "Defect";
+      TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
     if (PLAYER.position != 0) {
         
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
@@ -781,13 +826,15 @@ function animate(){
     PLAYER.X = LINES[PLAYER.line].getNextXPos();
     PLAYER.Y = LINES[PLAYER.line].Y;
     LINES[PLAYER.line].addPerson(PLAYER);
-    recordLineData()
+    //recordLineData()
     PLAYER_UP = false;
   }
   //If the player can't currently change lines because the destination line is in motion
   // give some visual feedback that the button press was received
   else if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && LINES[PLAYER.line-1].isServicing && !SELECTING) {
     PLAYER.Y -= 1;
+      action = "Defect";
+      TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
       Defect_check = true;
   }
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
@@ -795,7 +842,7 @@ function animate(){
     PLAYER.line -= 1;
     PLAYER.Y = LINES[PLAYER.line].Y;  
 //      TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
-//        FlagLineChange=true;
+//       
 //        console.log("Ichanged at : "+TIME_CHANGE_LINE);
     PLAYER_UP = false;
   }
@@ -804,6 +851,9 @@ function animate(){
         getTime();
 //        var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
 //    if (difference >1000){
+    action = "Selecting";    
+    TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+    EpisodeFlag =1;
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
@@ -812,7 +862,9 @@ function animate(){
   }
 
   //If the player has pressed the down key and is intending to change lines
-  if (PLAYER_DOWN && PLAYER.line != LINES.length-1 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {  // made a change here - Shruthi
+  if (PLAYER_DOWN && PLAYER.line != LINES.length-1 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {// made a change here - Shruthi
+      action = "Defect";
+      TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
     if (PLAYER.position != 0) {
       LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
       for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
@@ -820,6 +872,7 @@ function animate(){
       }
     }
     if (PLAYER.position == 0) {
+        console.log("Line = " +PLAYER.line);
       LINES[PLAYER.line].Persons.shift();
       LINES[PLAYER.line].Persons[0].X = PERSON_FRONT_OF_LINE;
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
@@ -833,7 +886,7 @@ function animate(){
     PLAYER.X = LINES[PLAYER.line].Persons[PLAYER.position-1].X+PERSON_X_SPACING;
     PLAYER.Y = LINES[PLAYER.line].Y;
     LINES[PLAYER.line].addPerson(PLAYER);
-    recordLineData()
+//    recordLineData()
     PLAYER_DOWN = false;
   }
   //If the player can't currently change lines because the destination line is in motion give some visual feedback that the button press was received
@@ -850,6 +903,9 @@ function animate(){
         //comment above when fixed initial waiting position
 
     else if (PLAYER_DOWN && SELECTING && PLAYER.line == -1) {
+        action = "Selecting";
+        TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+        EpisodeFlag =1;
         getTime();
         var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
 //     if (difference >1000){
@@ -909,9 +965,11 @@ function endInstructions(){
 function doKeyDown(evt) {
   console.log("Hey from key detect!");
   Slacking_check = false;
+//   TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
   //Record key stroke
-  recordKeyData(evt.keyCode);
+//  recordKeyData(evt.keyCode);
   if(evt.keyCode == 37) {
+    
     //LEFT
     if (!SELECTING) {
       PLAYER_LEFT = true;
@@ -948,11 +1006,13 @@ function doKeyDown(evt) {
     PLAYER.position = LINES[PLAYER.line].Persons.length;
     PLAYER.X = LINES[PLAYER.line].getNextXPos();
     LINES[PLAYER.line].addPerson(PLAYER);
-    recordLineData()
+//    recordLineData()
     SELECTING = false;
     
   }
-
+    
+    dataKeyStroke();
+    wasSalcking = Slacking_check;
 }
 function end_game(){
 //  line_record = JSON.stringify(LINE_RECORD);
@@ -975,16 +1035,16 @@ function end_game(){
 
   ctx.stroke();
   // write data
-  psiTurk.recordTrialData({'phase':"GAME",
-				    'lines':line_record,
-		    'positions':pos_record,
-				    'linetimes':time_record,
-				    'keys':key_record,
-				    'keytimes':key_time_record,
-				    'rewards':reward_record,
-				    'Score':player_score,
-                    'Episode Data':episode_record}
-				  );
+//  psiTurk.recordTrialData({'phase':"GAME",
+//				    'lines':line_record,
+//		    'positions':pos_record,
+//				    'linetimes':time_record,
+//				    'keys':key_record,
+//				    'keytimes':key_time_record,
+//				    'rewards':reward_record,
+//				    'Score':player_score,
+//                    'Episode Data':episode_record}
+//				  );
   // save data to server, compute bonus
 
   console.log('quitting')
@@ -1005,7 +1065,7 @@ function save2Server() {
 
     //done for git commit
   //in case of failure call back
-  setTimeout(save2Server,3000);
+//  setTimeout(save2Server,3000);
 };
 //Add a key detector to allow for interaction
 window.addEventListener('keydown',doKeyDown,true);
