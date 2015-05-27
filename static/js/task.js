@@ -56,7 +56,8 @@ var LINE_RECORD = [];
 var SLACKING_POS_RECORD =[];
 var DEFECT_POS_RECORD=[];
 var TIME_RECORD = [];
-var REWARD_RECORD = [];
+var REWARD_RECORD;
+var rewardRecFlag = false;
 var REWARDING = false; //tracks when player is being rewarded
 var KEY_RECORD = [];//record for all game move key strokes
 var KEY_TIME_RECORD = [];//associated time for all key strokes
@@ -324,6 +325,7 @@ function setPieces(){
 
   setTimeout(startAnimation,10);
   REWARDING = false;
+  rewardRecFlag =true;
   console.log("Bye from set");
 }
 
@@ -341,6 +343,7 @@ function reward(i) {
 
   REWARD = LINE_REWARDS[PLAYER.line];
   REWARD_TIC = 1;
+  REWARD_RECORD = REWARD;
   CHA_CHING.play();
 //  }
   // reset board
@@ -509,11 +512,17 @@ function dataKeyStroke(){
     data.slackCheck = wasSalcking;
     data.episodeFlag = EpisodeFlag; //to be defined
     data.timeRemaining = TIME_AT_KEY/1000;
-    data.reward = REWARD;
     
-    data = JSON.stringify(data);
-    console.log(data);
-    psiTurk.recordTrialData(data);
+    if (rewardRecFlag == true){
+    data.reward = REWARD_RECORD;
+    rewardRecFlag =false;
+    }
+    else{
+        data.reward = 0;
+    }
+    Data = JSON.stringify(data);
+    console.log(Data);
+    psiTurk.recordTrialData(Data);
 };
     
     
@@ -853,7 +862,7 @@ function animate(){
 //    if (difference >1000){
     action = "Selecting";    
     TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
-    EpisodeFlag =1;
+//    EpisodeFlag =1;
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
@@ -865,12 +874,12 @@ function animate(){
   if (PLAYER_DOWN && PLAYER.line != LINES.length-1 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {// made a change here - Shruthi
       action = "Defect";
       TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
-    if (PLAYER.position != 0) {
-      LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
-      for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
-	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X+ PERSON_X_SPACING;
-      }
-    }
+//    if (PLAYER.position != 0) {
+//      LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
+//      for (i = PLAYER.position;i<LINES[PLAYER.line].Persons.length;i++){
+//	       LINES[PLAYER.line].Persons[i].X = LINES[PLAYER.line].Persons[i-1].X+ PERSON_X_SPACING;
+//      }
+//    }
     if (PLAYER.position == 0) {
         console.log("Line = " +PLAYER.line);
       LINES[PLAYER.line].Persons.shift();
@@ -965,6 +974,8 @@ function endInstructions(){
 function doKeyDown(evt) {
   console.log("Hey from key detect!");
   Slacking_check = false;
+  dataKeyStroke();
+  wasSalcking = Slacking_check;
 //   TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
   //Record key stroke
 //  recordKeyData(evt.keyCode);
@@ -986,19 +997,7 @@ function doKeyDown(evt) {
   if(evt.keyCode == 40) {
     //DOWN!
     console.log("hey from down!");
-//      PLAYER_DOWN = true;
-
-//      console.log("Time at reward" + TIME_AT_REWARD);
-//      console.log("Time remaining" + TIME_REMAINING);
-//      console.log("Difference "+ ((TIME_AT_REWARD) - TIME_REMAINING));
-//      var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-//    if (Player.line == -1 && difference > 500){
-//    PLAYER_DOWN = true;
-//        TIME_AT_REWARD =0;
-//    }
-//      else if(PLAYER.line != -1){
           PLAYER_DOWN = true;
-//      }
   }
 
   if(evt.keyCode == 37 && SELECTING && PLAYER.line != -1) {
@@ -1011,8 +1010,7 @@ function doKeyDown(evt) {
     
   }
     
-    dataKeyStroke();
-    wasSalcking = Slacking_check;
+    
 }
 function end_game(){
 //  line_record = JSON.stringify(LINE_RECORD);
@@ -1022,7 +1020,7 @@ function end_game(){
 //  key_record = JSON.stringify(KEY_RECORD);
 //  key_time_record = JSON.stringify(KEY_TIME_RECORD);
   player_score = PLAYER_SCORE;
-  episode_record = JSON.stringify(EpisodeRecord);
+    dataKeyStroke();
 
   //Display "saving" on the board
   var c = document.getElementById("myCanvas");
@@ -1046,7 +1044,7 @@ function end_game(){
 //                    'Episode Data':episode_record}
 //				  );
   // save data to server, compute bonus
-
+  psiTurk.recordTrialData({ 'Score' : player_score});
   console.log('quitting')
   save2Server();
 };
