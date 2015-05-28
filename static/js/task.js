@@ -15,8 +15,8 @@ var psiTurk = PsiTurk(uniqueId, adServerLoc);
 var PLAYER_SCORE = 0;	//Keeps track of the players score
 var NUM_LINES = 2;	//Change to add more lines to the program 3 works well, I think
 var LINES = [];		//This is an array that will be used to keep track of all the persons in each line
-var LINE_REWARDS = [1, 12];	//This sets the reward for each line. If you increase the NUM_LINES, add additional entries here
-var LINE_LENGTHS = [0, 12];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
+var LINE_REWARDS = [1, 5];	//This sets the reward for each line. If you increase the NUM_LINES, add additional entries here
+var LINE_LENGTHS = [0, 5];	//This sets the length of each line. If you increase the NUM_LINES, add additional entries here
 ///These control the intermediate reward function
 var INTER_REWARDS = false;	//Set this to true if you want the estimate intermediate reward to display, false if you don't
 var INTER_REWARD = 0;
@@ -48,7 +48,7 @@ var START_TIME = 0;
 var TIME_REMAINING = 100.000;//un-rounded time remaining (milliseconds)
 var TIME_REMAINING_RND = 100;//integer time remaining for display
 var TIME_AT_KEY;
-var TIME = 300; // experiment duration in seconds
+var TIME = 60; // experiment duration in seconds
 var EpisodeNum = 1;
 var longLine;
 var lineNo;
@@ -115,7 +115,7 @@ var pages = [
 psiTurk.preloadPages(pages);
 
 //change last page based on the experimental condition
-if (!tstWOInstructions)
+if (!tstWOInstructions){
   if (INTER_REWARDS) {
     var instructionPages = [ // add as a list as many pages as you like
     "instructions/instruct-p1.html",
@@ -137,7 +137,7 @@ if (!tstWOInstructions)
     "instructions/instruct-p6_2.html"
     ];
   }
-  else{
+}else{
     var instructionPages = []; //want to run without instructions
   }
 
@@ -284,14 +284,14 @@ function setPieces(){
 
   ctx.clearRect(0,0,c.width,c.height); //Wipe the screen
   // Choose new line length for line 2
-//  LINE_LENGTHS[1] = 14;//LINE_LENGTHS_NEW;
-  var M = 3;
-
-    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
-        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
-    }
-
-  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,4,6,16));
+  LINE_LENGTHS[1] = 5;//LINE_LENGTHS_NEW;
+//  var M = 3;
+//
+//    if (LINE_LENGTHS[1] != LINE_LENGTHS_NEW){
+//        LINE_LENGTHS[1] = LINES[1].Persons.length + Math.max(-M,Math.min(M, (LINE_LENGTHS_NEW-LINES[1].Persons.length)));
+//    }
+//
+//  LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,4,6,16));
   // Set people
   for (i=0;i<NUM_LINES;i++) {
     LINES[i].Persons = []; //clear out the existing array
@@ -617,39 +617,39 @@ function animate(){
       if ( ARRIVE[i] == TIC){
         // time for someone to be added
 
-       if(i==1){
-
-//         if (!Slacking_check){
-             console.log('Are you here :( ');
-            if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
-                LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-            }
-            else if (LINE_LENGTHS_NEW > LINE_LENGTHS[i]){
-                console.log("Next length is bigger!!");
-                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
-                LINES[i].add2people(new Person(LINES[i].getNextXPos(),LINES[i].Y), new Person(LINES[i].getNextXPos() + PERSON_X_SPACING , LINES[i].Y) );
-                }
-                else {
-                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-                }
-            }
-            else{
-                console.log('Are you here ');
-                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW || Slacking_check){
-                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-                }
-            }
-//         }
-//         else  {
-//             console.log('Are you here yay');
-//             console.log("Line Length" + LINES[i].Persons.length);
-//              LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+PERSON_X_SPACING,LINES[i].Y));
+//       if(i==1){
 //
-//          }
-        }
-        else {
+////         if (!Slacking_check){
+//             console.log('Are you here :( ');
+//            if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
+//                LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+//            }
+//            else if (LINE_LENGTHS_NEW > LINE_LENGTHS[i]){
+//                console.log("Next length is bigger!!");
+//                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
+//                LINES[i].add2people(new Person(LINES[i].getNextXPos(),LINES[i].Y), new Person(LINES[i].getNextXPos() + PERSON_X_SPACING , LINES[i].Y) );
+//                }
+//                else {
+//                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+//                }
+//            }
+//            else{
+//                console.log('Are you here ');
+//                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW || Slacking_check){
+//                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+//                }
+//            }
+////         }
+////         else  {
+////             console.log('Are you here yay');
+////             console.log("Line Length" + LINES[i].Persons.length);
+////              LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+PERSON_X_SPACING,LINES[i].Y));
+////
+////          }
+//        }
+//        else {
               LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-        }
+//        }
 
       }
 
