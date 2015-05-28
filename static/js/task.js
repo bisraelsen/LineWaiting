@@ -50,12 +50,9 @@ var TIME_REMAINING_RND = 100;//integer time remaining for display
 var TIME_AT_KEY;
 var TIME = 300; // experiment duration in seconds
 var EpisodeNum = 1;
-var EpisodeRecord = {};
-var LONG_LINE_RECORD =[];
-var LINE_RECORD = [];
-var SLACKING_POS_RECORD =[];
-var DEFECT_POS_RECORD=[];
-var TIME_RECORD = [];
+var longLine;
+var lineNo;
+var positionInLine;
 var REWARD_RECORD;
 var rewardRecFlag = false;
 var REWARDING = false; //tracks when player is being rewarded
@@ -396,7 +393,7 @@ function draw(){
   ctx.font="25px Georgia";
   ctx.fillText("Time Remaining:",x_start-270,y_score-2);
   ctx.font="40px Georgia";
-  ctx.fillText(minutes.toString() + ":" + (seconds  < 10 ? "0" + seconds : seconds.toString()) ,x_start-40,y_score+1);
+  ctx.fillText(minutes.toString() + ":" + (seconds  < 10 ? "0" + seconds : seconds.toString()) ,x_start-40,y_score+1);  
   ctx.font="20px Georgia";
   ctx.fillText("Controls:",5,y_ctrls);
   ctx.fillText("- Left Arrow - Enter queue, advance in the queue",5,y_ctrls+20);
@@ -506,9 +503,9 @@ function getTime(){
 function dataKeyStroke(){
     var data = new Object();
     data.action = action;   //to be defined
-    data.longLine = LINES[1].Persons.length;
-    data.lineNo  = PLAYER.line;
-    data.positionInLine = PLAYER.position;
+    data.longLine = longLine;
+    data.lineNo  = lineNo;
+    data.positionInLine = positionInLine;
     data.slackCheck = wasSalcking;
     data.episodeFlag = EpisodeFlag; //to be defined
     data.timeRemaining = TIME_AT_KEY/1000;
@@ -750,6 +747,9 @@ function animate(){
           if((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > PERSON_X_SPACING && !LINES[i].isServicing) {
             // if the player pushed left AND they are not in 0 position AND there is a space in front AND the line is not servicing
             action = "Advance";
+            longLine = LINES[1].Persons.length;
+//            lineNo  = PLAYER.line;
+            positionInLine = PLAYER.position;     
             TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
             playerMoveLeft();
           }
@@ -759,6 +759,9 @@ function animate(){
       } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X >= PERSON_FRONT_OF_LINE && !LINES[i].isServicing) {
         console.log("Last step!");
         action = "Advance";  
+        longLine = LINES[1].Persons.length;
+//        lineNo  = PLAYER.line;
+        positionInLine = PLAYER.position;
         TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
         PLAYER.X = PERSON_FRONT_OF_LINE;
         for(j=1;j<LINES[PLAYER.line].Persons.length;j++) {
@@ -811,6 +814,9 @@ function animate(){
   if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && !LINES[PLAYER.line-1].isServicing && !SELECTING) {
    Defect_check = true;
       action = "Defect";
+      longLine = LINES[1].Persons.length;
+//      lineNo  = PLAYER.line;
+      positionInLine = PLAYER.position;
       TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
     if (PLAYER.position != 0) {
         
@@ -835,6 +841,7 @@ function animate(){
     PLAYER.X = LINES[PLAYER.line].getNextXPos();
     PLAYER.Y = LINES[PLAYER.line].Y;
     LINES[PLAYER.line].addPerson(PLAYER);
+    lineNo = PLAYER.line;
     //recordLineData()
     PLAYER_UP = false;
   }
@@ -843,6 +850,9 @@ function animate(){
   else if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && LINES[PLAYER.line-1].isServicing && !SELECTING) {
     PLAYER.Y -= 1;
       action = "Defect";
+      longLine = LINES[1].Persons.length;
+//      lineNo  = PLAYER.line;
+      positionInLine = PLAYER.position;
       TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
       Defect_check = true;
   }
@@ -861,11 +871,14 @@ function animate(){
 //        var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
 //    if (difference >1000){
     action = "Selecting";    
+        longLine = LINES[1].Persons.length;
+//        positionInLine = PLAYER.position;
     TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
 //    EpisodeFlag =1;
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+        lineNo  = PLAYER.line;
     PLAYER_UP = false;
 //    } 
   }
@@ -873,6 +886,9 @@ function animate(){
   //If the player has pressed the down key and is intending to change lines
   if (PLAYER_DOWN && PLAYER.line != LINES.length-1 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {// made a change here - Shruthi
       action = "Defect";
+      longLine = LINES[1].Persons.length;
+//      lineNo  = PLAYER.line;
+      positionInLine = PLAYER.position;
       TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
 //    if (PLAYER.position != 0) {
 //      LINES[PLAYER.line].Persons.splice(PLAYER.position,1);
@@ -895,6 +911,7 @@ function animate(){
     PLAYER.X = LINES[PLAYER.line].Persons[PLAYER.position-1].X+PERSON_X_SPACING;
     PLAYER.Y = LINES[PLAYER.line].Y;
     LINES[PLAYER.line].addPerson(PLAYER);
+    lineNo = PLAYER.line;
 //    recordLineData()
     PLAYER_DOWN = false;
   }
@@ -904,6 +921,7 @@ function animate(){
   }
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
   else if (PLAYER_DOWN && SELECTING && PLAYER.line != LINES.length-1 && PLAYER.line != -1) {
+      
     PLAYER.line += 1;
     PLAYER.Y = LINES[PLAYER.line].Y;
     
@@ -913,12 +931,16 @@ function animate(){
 
     else if (PLAYER_DOWN && SELECTING && PLAYER.line == -1) {
         action = "Selecting";
+//        longLine = LINES[1].Persons.length;
+        
+        positionInLine = PLAYER.position;
         TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
         EpisodeFlag =1;
         getTime();
         var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
 //     if (difference >1000){
     PLAYER.line += 2;
+        lineNo  = PLAYER.line;
     PLAYER.Y = LINES[PLAYER.line].Y;
         TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
         console.log("TIme at select : " +TIME_AT_SELECT);
@@ -1063,7 +1085,7 @@ function save2Server() {
 
     //done for git commit
   //in case of failure call back
-//  setTimeout(save2Server,3000);
+  setTimeout(save2Server,3000);
 };
 //Add a key detector to allow for interaction
 window.addEventListener('keydown',doKeyDown,true);
