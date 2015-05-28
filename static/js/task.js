@@ -596,7 +596,7 @@ function animate(){
                   
               }
             else{
-                if ((TIME_AT_ENTER-TIME_AT_REWARD) >1000){  
+                if ((TIME_AT_ENTER-TIME_AT_REWARD) > 1000){  
                 clearInterval(AnimateHandle);
                 clearInterval(DrawHandle);
                    console.log("i= "+i);
