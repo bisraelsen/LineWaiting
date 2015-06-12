@@ -80,6 +80,8 @@ var LINE_LENGTHS_NEW = Math.round(drawGaussianSample(12,3,7,17));
 var tstWOInstructions = false; //for testing and skipping instructions
 var action;
 var EpisodeFlag =0;
+var timeCheck;     
+var animateCall;
 //Randomly decide between having intermediate rewards on or off
 if (Math.round(Math.random()) == 0){
   INTER_REWARDS = false;
@@ -239,7 +241,7 @@ function init() {
   console.log("Hi from init!");
   console.log("condition is " + INTER_REWARDS);
   var c = document.getElementById("myCanvas");
- 
+  animateCall = TIME*1000;
   //set people in lines
   for (i=0;i<NUM_LINES;i++) {
     LINES.push(new Line(GAME_BOARD_Y + GAME_BOARD_HEIGHT/NUM_LINES*(i)));
@@ -522,19 +524,25 @@ function dataKeyStroke(){
     psiTurk.recordTrialData(Data);
 };
     
-    
-    
+
 //This is called repeatedly to update the state of the game and
 // animate the lines
 function animate(){
-  //console.log("Hi from animate")
+  //console.log("Hi from animate")'
+ timeCheck = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+    console.log("animateCall = "+animateCall);
+    console.log("timeCheck = "+timeCheck);
   TIC = TIC + 1;			//Update the TIC global var to keep time
   //Reset count when the interval (set in global vars) has passed
-  if (TIC > INTERVAL) {
+//  if (TIC > INTERVAL) {
+    if(Math.abs(animateCall-timeCheck) >= 980){
+         animateCall = timeCheck;
+        console.log('Here out');
     TIC = 0;
     for (i=0;i<NUM_LINES;i++){
       // If line needs another person and player is not in the line
-      if (LINES[i].Persons.length < LINE_LENGTHS[i] && (PLAYER.line != i || SELECTING)) {
+      if ( (PLAYER.line != i || SELECTING)) {
+          console.log('Here');
 	       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
       }
       // If line has too many people and player is not in the line
@@ -543,7 +551,7 @@ function animate(){
       }
     }
   }
-
+   
   //Controls the reward animation at the top of the screen
   if (REWARD_TIC > 0){
     REWARD_TIC += 1;
@@ -576,7 +584,7 @@ function animate(){
           }
           else if (PLAYER.line == i && !SELECTING) {
             //stop animation
-              TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME)); 
+              TIME_AT_REWARD = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
 
               if(Defect_check){
                   if ((TIME_CHANGE_LINE-TIME_AT_REWARD)>1000){  
@@ -614,7 +622,8 @@ function animate(){
         
     } else {
 
-      if ( ARRIVE[i] == TIC){
+//      if ( ARRIVE[i] == TIC){
+        if(Math.abs(animateCall-timeCheck) >= 980){
         // time for someone to be added
 
 //       if(i==1){
@@ -651,9 +660,9 @@ function animate(){
               LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
 //        }
 
-      }
-
-      if ( SERVICE[i] == TIC){
+//      }
+//
+//      if ( SERVICE[i] == TIC){
         // time for someone to exit the line
         LINES[i].isServicing = true;
       }
