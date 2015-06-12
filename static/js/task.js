@@ -48,7 +48,7 @@ var START_TIME = 0;
 var TIME_REMAINING = 100.000;//un-rounded time remaining (milliseconds)
 var TIME_REMAINING_RND = 100;//integer time remaining for display
 var TIME_AT_KEY;
-var TIME = 60; // experiment duration in seconds
+var TIME = 120; // experiment duration in seconds
 var EpisodeNum = 1;
 var longLine;
 var lineNo;
@@ -535,16 +535,17 @@ function animate(){
   TIC = TIC + 1;			//Update the TIC global var to keep time
   //Reset count when the interval (set in global vars) has passed
 //  if (TIC > INTERVAL) {
-    if(Math.abs(animateCall-timeCheck) >= 980){
+    if(Math.abs(animateCall-timeCheck) >= 1000){
          animateCall = timeCheck;
         console.log('Here out');
     TIC = 0;
     for (i=0;i<NUM_LINES;i++){
       // If line needs another person and player is not in the line
-      if ( (PLAYER.line != i || SELECTING)) {
+//      if ( (PLAYER.line != i || SELECTING)) {
           console.log('Here');
 	       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-      }
+           LINES[i].isServicing = true;
+//      }
       // If line has too many people and player is not in the line
       if (LINES[i].Persons.length > LINE_LENGTHS[i] && (PLAYER.line != i || SELECTING)) {
 	       LINES[i].Persons.pop();
@@ -623,7 +624,7 @@ function animate(){
     } else {
 
 //      if ( ARRIVE[i] == TIC){
-        if(Math.abs(animateCall-timeCheck) >= 980){
+        if(Math.abs(animateCall-timeCheck) >= 1000){
         // time for someone to be added
 
 //       if(i==1){
@@ -820,7 +821,7 @@ function animate(){
   } // end of for loop to check for service/arrival
 
   //If the player has pressed the UP key and is intending to change lines
-  if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && !LINES[PLAYER.line-1].isServicing && !SELECTING) {
+  if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 &&  !SELECTING) {
    Defect_check = true;
       action = "Defect";
       longLine = LINES[1].Persons.length;
@@ -856,15 +857,15 @@ function animate(){
   }
   //If the player can't currently change lines because the destination line is in motion
   // give some visual feedback that the button press was received
-  else if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && LINES[PLAYER.line-1].isServicing && !SELECTING) {
-    PLAYER.Y -= 1;
-      action = "Defect";
-      longLine = LINES[1].Persons.length;
-//      lineNo  = PLAYER.line;
-      positionInLine = PLAYER.position;
-      TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
-      Defect_check = true;
-  }
+//  else if (PLAYER_UP && PLAYER.line != 0 && PLAYER.line != -1 && LINES[PLAYER.line-1].isServicing && !SELECTING) {
+//    PLAYER.Y -= 1;
+//      action = "Defect";
+//      longLine = LINES[1].Persons.length;
+////      lineNo  = PLAYER.line;
+//      positionInLine = PLAYER.position;
+//      TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+//      Defect_check = true;
+//  }
   //If the player is in the waiting area, no need to check to see if destination line is in motion, so just go ahead and move the player
   else if (PLAYER_UP && SELECTING && PLAYER.line != 0 && PLAYER.line !=-1) {
     PLAYER.line -= 1;
