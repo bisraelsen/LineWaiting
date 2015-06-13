@@ -524,28 +524,30 @@ function dataKeyStroke(){
     psiTurk.recordTrialData(Data);
 };
     
-
+var ctr=1;
 //This is called repeatedly to update the state of the game and
 // animate the lines
 function animate(){
   //console.log("Hi from animate")'
  timeCheck = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
-    console.log("animateCall = "+animateCall);
-    console.log("timeCheck = "+timeCheck);
+//    console.log("animateCall = "+animateCall);
+//    console.log("timeCheck = "+timeCheck);
   TIC = TIC + 1;			//Update the TIC global var to keep time
   //Reset count when the interval (set in global vars) has passed
 //  if (TIC > INTERVAL) {
-    if(Math.abs(animateCall-timeCheck) >= 1000){
-         animateCall = timeCheck;
+    if(Math.abs(animateCall-timeCheck) >= ctr*1000){
+//         animateCall = timeCheck;
+        ctr=ctr+1;  // to check if 1000 ms have passed but wrt the start time
         console.log('Here out');
     TIC = 0;
     for (i=0;i<NUM_LINES;i++){
       // If line needs another person and player is not in the line
-//      if ( (PLAYER.line != i || SELECTING)) {
+        
+      if ( i == 1) {
           console.log('Here');
 	       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
            LINES[i].isServicing = true;
-//      }
+      }
       // If line has too many people and player is not in the line
       if (LINES[i].Persons.length > LINE_LENGTHS[i] && (PLAYER.line != i || SELECTING)) {
 	       LINES[i].Persons.pop();
@@ -623,50 +625,50 @@ function animate(){
         
     } else {
 
-//      if ( ARRIVE[i] == TIC){
-        if(Math.abs(animateCall-timeCheck) >= 1000){
-        // time for someone to be added
-
-//       if(i==1){
+////      if ( ARRIVE[i] == TIC){
+//        if(Math.abs(animateCall-timeCheck) >= 1000){
+//        // time for someone to be added
 //
-////         if (!Slacking_check){
-//             console.log('Are you here :( ');
-//            if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
-//                LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-//            }
-//            else if (LINE_LENGTHS_NEW > LINE_LENGTHS[i]){
-//                console.log("Next length is bigger!!");
-//                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
-//                LINES[i].add2people(new Person(LINES[i].getNextXPos(),LINES[i].Y), new Person(LINES[i].getNextXPos() + PERSON_X_SPACING , LINES[i].Y) );
-//                }
-//                else {
-//                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-//                }
-//            }
-//            else{
-//                console.log('Are you here ');
-//                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW || Slacking_check){
-//                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-//                }
-//            }
-////         }
-////         else  {
-////             console.log('Are you here yay');
-////             console.log("Line Length" + LINES[i].Persons.length);
-////              LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+PERSON_X_SPACING,LINES[i].Y));
+////       if(i==1){
 ////
-////          }
-//        }
-//        else {
-              LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-//        }
-
-//      }
+//////         if (!Slacking_check){
+////             console.log('Are you here :( ');
+////            if (LINE_LENGTHS_NEW == LINE_LENGTHS[i]){
+////                LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+////            }
+////            else if (LINE_LENGTHS_NEW > LINE_LENGTHS[i]){
+////                console.log("Next length is bigger!!");
+////                if (LINES[i].Persons.length < LINE_LENGTHS_NEW){
+////                LINES[i].add2people(new Person(LINES[i].getNextXPos(),LINES[i].Y), new Person(LINES[i].getNextXPos() + PERSON_X_SPACING , LINES[i].Y) );
+////                }
+////                else {
+////                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+////                }
+////            }
+////            else{
+////                console.log('Are you here ');
+////                if (LINES[i].Persons.length <= LINE_LENGTHS_NEW || Slacking_check){
+////                    LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+////                }
+////            }
+//////         }
+//////         else  {
+//////             console.log('Are you here yay');
+//////             console.log("Line Length" + LINES[i].Persons.length);
+//////              LINES[i].addPerson(new Person(LINES[i].Persons[LINES[i].Persons.length-1].X+PERSON_X_SPACING,LINES[i].Y));
+//////
+//////          }
+////        }
+////        else {
+//              LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+////        }
 //
-//      if ( SERVICE[i] == TIC){
-        // time for someone to exit the line
-        LINES[i].isServicing = true;
-      }
+////      }
+////
+////      if ( SERVICE[i] == TIC){
+//        // time for someone to exit the line
+//        LINES[i].isServicing = true;
+//      }
 
       //If a line needs to move up and the player is not in it
       // simply move up the entire line
@@ -1044,6 +1046,10 @@ function doKeyDown(evt) {
     
     
 }
+
+
+
+
 function end_game(){
 //  line_record = JSON.stringify(LINE_RECORD);
 //  pos_record = JSON.stringify(POS_RECORD);
