@@ -528,6 +528,7 @@ var ctr=1;
 //This is called repeatedly to update the state of the game and
 // animate the lines
 function animate(){
+   var saveValue;
   //console.log("Hi from animate")'
  timeCheck = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
 //    console.log("animateCall = "+animateCall);
@@ -545,13 +546,37 @@ function animate(){
         
       if ( i == 1) {
           console.log('Here');
+//          if (PLAYER.position != LINES[i].Persons.length-1){
+          if(PLAYER.line != i){
 	       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+          }
+          else{
+           if (PLAYER.position == LINE_LENGTHS[i]-1){
+               
+               saveValue = LINES[i].getNextXPos();
+               LINES[i].addPerson(new Person(LINES[i].getNextXPos()-(2*PERSON_X_SPACING),LINES[i].Y));
+               
+               console.log("line length is : "+ LINES[i].Persons.length);
+           }
+          
+          else{
+              if (PLAYER.position == LINE_LENGTHS[i]-2){
+                  LINES[i].addPerson(new Person(saveValue,LINES[i].Y),new Person(saveValue+PERSON_X_SPACING,LINES[i].Y));
+              }
+              else{
+              LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+          }
+          }
+          }
            LINES[i].isServicing = true;
       }
       // If line has too many people and player is not in the line
-      if (LINES[i].Persons.length > LINE_LENGTHS[i] && (PLAYER.line != i || SELECTING)) {
+       
+      if( (LINES[i].Persons.length > LINE_LENGTHS[i] && (PLAYER.line != i || SELECTING) )){
 	       LINES[i].Persons.pop();
       }
+        
+    
     }
   }
    
@@ -783,7 +808,7 @@ function animate(){
       }
 
       //If the player slacks off and doesn't move up
-      if((PLAYER.position > 0) && TIC > (INTERVAL - 5) && PLAYER.position < (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && ((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > 35)) {
+      if((PLAYER.position > 0) && TIC > (INTERVAL - 5) && PLAYER.position < (LINE_LENGTHS[PLAYER.line]-1) && !PLAYER_LEFT && ((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > 35)) {
         console.log("Slacking!");
           Slacking_check  = true;
           wasSalcking = Slacking_check;
@@ -794,7 +819,7 @@ function animate(){
         LINES[PLAYER.line].Persons[PLAYER.position + 1] = PLAYER;
         PLAYER.position += 1;
 
-        for(j=PLAYER.position+1;j<LINES[PLAYER.line].Persons.length;j++) {
+        for(j=PLAYER.position+1;j<LINE_LENGTHS[PLAYER.line];j++) {
   	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
         }
       } else if (PLAYER.position == 0 && PLAYER.X > PERSON_FRONT_OF_LINE && TIC > (INTERVAL - 5) && !PLAYER_LEFT) {
@@ -806,16 +831,23 @@ function animate(){
         LINES[PLAYER.line].Persons[0] = LINES[PLAYER.line].Persons[1];
         LINES[PLAYER.line].Persons[1] = PLAYER;
         PLAYER.position = 1;
-        for(j=2;j<LINES[PLAYER.line].Persons.length;j++) {
+        for(j=2;j<LINE_LENGTHS[PLAYER.line];j++) {
   	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X+PERSON_X_SPACING;
         }
       }
        else if(PLAYER.line != -1){
-           if (PLAYER.position == (LINES[PLAYER.line].Persons.length-1) && !PLAYER_LEFT && TIC > (INTERVAL - 5)){
+           if (PLAYER.position == (LINE_LENGTHS[PLAYER.line]-1) && !PLAYER_LEFT ){//&& TIC > (INTERVAL - 5)){
             Slacking_check = true;
             wasSalcking = Slacking_check;
 //            recordLineData()
-
+//            LINES[PLAYER.line].Persons[PLAYER.position + 1].X = LINES[PLAYER.line].Persons[PLAYER.position - 1].X + PERSON_X_SPACING;
+//        LINES[PLAYER.line].Persons[PLAYER.position] = LINES[PLAYER.line].Persons[PLAYER.position + 1];
+//        LINES[PLAYER.line].Persons[PLAYER.position + 1] = PLAYER;
+//        PLAYER.position += 1;
+//
+//        for(j=PLAYER.position+1;j<LINES[PLAYER.line].Persons.length;j++) {
+//  	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
+//        }
        }
        }
     }
@@ -843,7 +875,7 @@ function animate(){
       LINES[PLAYER.line].Persons[0].X = PERSON_FRONT_OF_LINE;
       for (j=1;j<LINES[PLAYER.line].Persons.length;j++){
 //	       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].getNextXPos();
-      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X+PERSON_X_SPACING;
+      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
       }
     }
 
@@ -976,7 +1008,7 @@ function animate(){
 // bug that occurs when trying to move while the line is in motion
 function playerMoveLeft() {
   if (!LINES[PLAYER.line].isServicing) {
-    for (j=PLAYER.position;j<LINES[PLAYER.line].Persons.length;j++) {
+    for (j=PLAYER.position;j<LINE_LENGTHS[PLAYER.line];j++) {
       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
     }
     if (INTER_REWARDS) {
