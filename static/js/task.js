@@ -527,8 +527,12 @@ function dataKeyStroke(){
 var ctr=1;
 //This is called repeatedly to update the state of the game and
 // animate the lines
+ var flagEnter = false;
 function animate(){
+    
+    
    var saveValue;
+   flagEnter = false;
   //console.log("Hi from animate")'
  timeCheck = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
 //    console.log("animateCall = "+animateCall);
@@ -537,6 +541,8 @@ function animate(){
   //Reset count when the interval (set in global vars) has passed
 //  if (TIC > INTERVAL) {
     if(Math.abs(animateCall-timeCheck) >= ctr*1000){
+        flagEnter = true;
+        console.log("PLAYER POSITION: "+PLAYER.position);
 //         animateCall = timeCheck;
         ctr=ctr+1;  // to check if 1000 ms have passed but wrt the start time
         console.log('Here out');
@@ -551,22 +557,24 @@ function animate(){
 	       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
           }
           else{
-           if (PLAYER.position == LINE_LENGTHS[i]-1){
-               
-               saveValue = LINES[i].getNextXPos();
-               LINES[i].addPerson(new Person(LINES[i].getNextXPos()-(2*PERSON_X_SPACING),LINES[i].Y));
-               
-               console.log("line length is : "+ LINES[i].Persons.length);
-           }
-          
-          else{
-              if (PLAYER.position == LINE_LENGTHS[i]-2){
-                  LINES[i].addPerson(new Person(saveValue,LINES[i].Y),new Person(saveValue+PERSON_X_SPACING,LINES[i].Y));
-              }
-              else{
-              LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-          }
-          }
+//           if( (PLAYER.position == LINE_LENGTHS[i]-1) || (PLAYER.position == LINE_LENGTHS[i])) {
+//               
+//               saveValue = LINES[i].getNextXPos();
+//               LINES[i].addPerson(new Person(LINES[i].getNextXPos()-(2*PERSON_X_SPACING),LINES[i].Y));
+//               
+//               console.log("line length is : "+ LINES[i].Persons.length);
+//           }
+//          
+//          else{
+//              if (PLAYER.position == LINE_LENGTHS[i]-2){
+////                  LINES[i].addPerson(new Person(saveValue,LINES[i].Y),new Person(saveValue+PERSON_X_SPACING,LINES[i].Y));
+                  LINES[i].addPerson(new Person(LINES[i].getNextXPos,LINES[i].Y));
+//              }
+//              
+//              else{
+//              LINES[i].addPerson(new Person(saveValue,LINES[i].Y));
+//          }
+//          }
           }
            LINES[i].isServicing = true;
       }
@@ -775,8 +783,30 @@ function animate(){
 
 //    if (PLAYER.line != -1){
         console.log(PLAYER.line);
+        
+        //When the player enters a line 
+        if(PLAYER_LEFT && SELECTING && PLAYER.line != -1) {
+            // move from selection area
+//            PLAYER.position = LINES[PLAYER.line].Persons.length;
+//            if (PLAYER.line == 1){
+//                PLAYER.position = LINE_LENGTHS[PLAYER.line]-1;
+//            }
+//            else{
+                    PLAYER.position = LINES[PLAYER.line].Persons.length;
+//            }
+            
+            PLAYER.X = LINES[PLAYER.line].getNextXPos();
+        //    Enter = setInterval(checkEnterFLag,20);
+
+            LINES[PLAYER.line].addPerson(PLAYER);
+        //    recordLineData()
+
+            SELECTING = false;
+
+          }
+        
       //If player has pressed the left arrow and needs to be moved up
-      if(PLAYER_LEFT && PLAYER.position != -1 && PLAYER.position != 0) {
+      if(PLAYER_LEFT && PLAYER.position != -1 && PLAYER.position != 0 && !SELECTING) {
           console.log(PLAYER.position);
 //          if (PLAYER.line == 0){
 //              TIME_AT_ENTER = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
@@ -793,7 +823,7 @@ function animate(){
           else {
               actions = "Trying to advance";
           }
-      } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X >= PERSON_FRONT_OF_LINE && !LINES[i].isServicing) {
+      } else if(PLAYER_LEFT && PLAYER.position == 0 && PLAYER.X >= PERSON_FRONT_OF_LINE && !LINES[i].isServicing && !SELECTING) {
         console.log("Last step!");
         action = "Advance";  
         longLine = LINES[1].Persons.length;
@@ -808,7 +838,7 @@ function animate(){
       }
 
       //If the player slacks off and doesn't move up
-      if((PLAYER.position > 0) && TIC > (INTERVAL - 5) && PLAYER.position < (LINE_LENGTHS[PLAYER.line]-1) && !PLAYER_LEFT && ((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > 35)) {
+      if((PLAYER.position > 0) && TIC > (INTERVAL - 5) && PLAYER.position <= (LINE_LENGTHS[PLAYER.line]) && !PLAYER_LEFT && ((LINES[PLAYER.line].Persons[PLAYER.position].X - LINES[PLAYER.line].Persons[PLAYER.position-1].X) > 35)) {
         console.log("Slacking!");
           Slacking_check  = true;
           wasSalcking = Slacking_check;
@@ -982,14 +1012,14 @@ function animate(){
         EpisodeFlag =1;
         getTime();
         var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-//     if (difference >1000){
-    PLAYER.line += 2;
-        lineNo  = PLAYER.line;
-    PLAYER.Y = LINES[PLAYER.line].Y;
-        TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
-        console.log("TIme at select : " +TIME_AT_SELECT);
-    PLAYER_DOWN = false;
-//     }
+     if (difference >1000){
+        PLAYER.line += 2;
+            lineNo  = PLAYER.line;
+        PLAYER.Y = LINES[PLAYER.line].Y;
+            TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+            console.log("TIme at select : " +TIME_AT_SELECT);
+        PLAYER_DOWN = false;
+     }
   }
 
 
@@ -1008,7 +1038,7 @@ function animate(){
 // bug that occurs when trying to move while the line is in motion
 function playerMoveLeft() {
   if (!LINES[PLAYER.line].isServicing) {
-    for (j=PLAYER.position;j<LINE_LENGTHS[PLAYER.line];j++) {
+    for (j=PLAYER.position;j<LINES[i].Persons.length;j++) {
       LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
     }
     if (INTER_REWARDS) {
@@ -1048,9 +1078,9 @@ function doKeyDown(evt) {
   if(evt.keyCode == 37) {
     
     //LEFT
-    if (!SELECTING) {
+    
       PLAYER_LEFT = true;
-    }
+    
   }
   if(evt.keyCode == 38) {
     console.log("hey from up!");
@@ -1066,20 +1096,33 @@ function doKeyDown(evt) {
           PLAYER_DOWN = true;
   }
 
-  if(evt.keyCode == 37 && SELECTING && PLAYER.line != -1) {
-    // move from selection area
-    PLAYER.position = LINES[PLAYER.line].Persons.length;
-    PLAYER.X = LINES[PLAYER.line].getNextXPos();
-    LINES[PLAYER.line].addPerson(PLAYER);
-//    recordLineData()
-    SELECTING = false;
-    
-  }
+//  if(evt.keyCode == 37 && SELECTING && PLAYER.line != -1) {
+//    // move from selection area
+//    PLAYER.position = LINES[PLAYER.line].Persons.length;
+//    PLAYER.X = LINES[PLAYER.line].getNextXPos();
+////    Enter = setInterval(checkEnterFLag,20);
+//   
+//    LINES[PLAYER.line].addPerson(PLAYER);
+////    recordLineData()
+//    
+//    SELECTING = false;
+//    
+//  }
     
     
 }
 
-
+//function checkEnterFLag (){
+//    if (flagEnter == true){
+//        LINES[PLAYER.line].addPerson(PLAYER);
+//    
+//        SELECTING = false;
+//        clearInterval(Enter);
+//    }
+//    else{
+//        checkEnterFLag();
+//    }
+//}
 
 
 function end_game(){
