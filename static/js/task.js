@@ -886,22 +886,22 @@ function animate(){
   }
 
     //comment above when fixed initial waiting position
-  else if (PLAYER_UP && SELECTING && PLAYER.line == -1) {
-        getTime();
-//        var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-//    if (difference >1000){
-    action = "Selecting";    
-        longLine = LINES[1].Persons.length;
-//        positionInLine = PLAYER.position;
-    TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
-//    EpisodeFlag =1;
-    PLAYER.line += 1;
-    PLAYER.Y = LINES[PLAYER.line].Y;
-    TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
-        lineNo  = PLAYER.line;
-    PLAYER_UP = false;
-//    } 
-  }
+//  else if (PLAYER_UP && SELECTING && PLAYER.line == -1) {
+//        getTime();
+////        var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
+////    if (difference >1000){
+//    action = "Selecting";    
+//        longLine = LINES[1].Persons.length;
+////        positionInLine = PLAYER.position;
+//    TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+////    EpisodeFlag =1;
+//    PLAYER.line += 1;
+//    PLAYER.Y = LINES[PLAYER.line].Y;
+//    TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+//        lineNo  = PLAYER.line;
+//    PLAYER_UP = false;
+////    } 
+//  }
 
   //If the player has pressed the down key and is intending to change lines
   if (PLAYER_DOWN && PLAYER.line != LINES.length-1 && !LINES[PLAYER.line+1].isServicing && !SELECTING) {// made a change here - Shruthi
@@ -949,24 +949,24 @@ function animate(){
   }
         //comment above when fixed initial waiting position
 
-    else if (PLAYER_DOWN && SELECTING && PLAYER.line == -1) {
-        action = "Selecting";
-//        longLine = LINES[1].Persons.length;
-        
-        positionInLine = PLAYER.position;
-        TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
-        EpisodeFlag =1;
-        getTime();
-        var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
-//     if (difference >1000){
-    PLAYER.line += 2;
-        lineNo  = PLAYER.line;
-    PLAYER.Y = LINES[PLAYER.line].Y;
-        TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
-        console.log("TIme at select : " +TIME_AT_SELECT);
-    PLAYER_DOWN = false;
-//     }
-  }
+//    else if (PLAYER_DOWN && SELECTING && PLAYER.line == -1) {
+//        action = "Selecting";
+////        longLine = LINES[1].Persons.length;
+//        
+//        positionInLine = PLAYER.position;
+//        TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+//        EpisodeFlag =1;
+//        getTime();
+//        var difference = ((TIME_AT_REWARD) - TIME_REMAINING);
+////     if (difference >1000){
+//    PLAYER.line += 2;
+//        lineNo  = PLAYER.line;
+//    PLAYER.Y = LINES[PLAYER.line].Y;
+//        TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+//        console.log("TIme at select : " +TIME_AT_SELECT);
+//    PLAYER_DOWN = false;
+////     }
+//  }
 
 
 
@@ -1033,6 +1033,23 @@ function doKeyDown(evt) {
     PLAYER_UP = true;
     TIME_CHANGE_LINE = TIME*1000 - Math.round((new Date().getTime() - START_TIME));
     FlagLineChange=true;
+      
+        if (PLAYER.line == -1 && SELECTING){
+
+            getTime();
+            action = "Selecting";    
+            longLine = LINES[1].Persons.length;
+    //        positionInLine = PLAYER.position;
+            TIME_AT_KEY = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+    //    EpisodeFlag =1;
+            PLAYER.line += 1;
+            PLAYER.Y = LINES[PLAYER.line].Y;
+            TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+            entry = setInterval(checkEntry,0);
+            lineNo  = PLAYER.line;
+            PLAYER_UP = false;
+        }
+
     }
     //UP!
 
@@ -1040,21 +1057,31 @@ function doKeyDown(evt) {
     //DOWN!
     console.log("hey from down!");
           PLAYER_DOWN = true;
+      if (PLAYER.line == -1 && SELECTING){
+        
+        PLAYER.line += 2;
+        lineNo  = PLAYER.line;
+        PLAYER.Y = LINES[PLAYER.line].Y;
+        TIME_AT_SELECT = TIME*1000 -(Math.round(new Date().getTime() - START_TIME));
+        console.log("TIme at select : " +TIME_AT_SELECT);
+        entry = setInterval(checkEntry,0);
+        PLAYER_DOWN = false;
+    }
   }
-
-  if(evt.keyCode == 37 && SELECTING && PLAYER.line != -1) {
-    // move from selection area
-//      PLAYER_LEFT == true;
-//    if (!LINES[PLAYER.line].isServicing){
-//    PLAYER.position = LINES[PLAYER.line].Persons.length;
-//    PLAYER.X = LINES[PLAYER.line].getNextXPos();
-//    LINES[PLAYER.line].addPerson(PLAYER);
-////    recordLineData()
-//    SELECTING = false;
-//    PLAYER_LEFT = false;
-//    }
-      entry = setInterval(checkEntry,0);
-  }
+//
+//  if(evt.keyCode == 37 && SELECTING && PLAYER.line != -1) {
+//    // move from selection area
+////      PLAYER_LEFT == true;
+////    if (!LINES[PLAYER.line].isServicing){
+////    PLAYER.position = LINES[PLAYER.line].Persons.length;
+////    PLAYER.X = LINES[PLAYER.line].getNextXPos();
+////    LINES[PLAYER.line].addPerson(PLAYER);
+//////    recordLineData()
+////    SELECTING = false;
+////    PLAYER_LEFT = false;
+////    }
+//      entry = setInterval(checkEntry,0);
+//  }
     
     
 }
