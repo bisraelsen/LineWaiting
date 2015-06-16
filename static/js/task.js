@@ -544,14 +544,20 @@ function animate(){
       // If line needs another person and player is not in the line
         
       if ( i == 1) {
-          console.log('Here');
-	       LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
-           LINES[i].isServicing = true;
+          if (LINES[i].Persons.length < LINE_LENGTHS[i]-1){
+               LINES[i].add2people(new Person(LINES[i].getNextXPos(),LINES[i].Y),new Person(LINES[i].getNextXPos(),LINES[i].Y));
+               LINES[i].isServicing = true;
+          }
+           else{   
+               console.log('Here');
+               LINES[i].addPerson(new Person(LINES[i].getNextXPos(),LINES[i].Y));
+               LINES[i].isServicing = true;
+          }
       }
       // If line has too many people and player is not in the line
-//      if (LINES[i].Persons.length > LINE_LENGTHS[i] && (PLAYER.line != i || SELECTING)) {
-//	       LINES[i].Persons.pop();
-//      }
+      if (LINES[i].Persons.length > LINE_LENGTHS[i] && (PLAYER.line != i || SELECTING)) {
+	       LINES[i].Persons.pop();
+      }
     }
   }
    
@@ -780,6 +786,7 @@ function animate(){
           //loop through players line and shift x position of other people
   	      LINES[PLAYER.line].Persons[j].X = LINES[PLAYER.line].Persons[j-1].X + PERSON_X_SPACING;
         }
+          PLAYER_LEFT = false;
       }
 
       //If the player slacks off and doesn't move up
@@ -1053,8 +1060,19 @@ function doKeyDown(evt) {
 }
 
 function checkEntry(){
-    if (PLAYER.line == 1){
-    if (!LINES[PLAYER.line].isServicing && LINES[PLAYER.line].Persons.length == LINE_LENGTHS[PLAYER.line]){
+    if (PLAYER.line == 1 ){
+        if (!LINES[PLAYER.line].isServicing && LINES[PLAYER.line].Persons.length == (LINE_LENGTHS[PLAYER.line] -1)&& SELECTING){
+            PLAYER.position = LINES[PLAYER.line].Persons.length;
+            PLAYER.X = LINES[PLAYER.line].getNextXPos();
+            LINES[PLAYER.line].addPerson(PLAYER);
+        //    recordLineData()
+            SELECTING = false;
+            PLAYER_LEFT = false;
+            clearInterval(entry);
+        }
+    }
+    else{
+        if(SELECTING && PLAYER.line != -1){
         PLAYER.position = LINES[PLAYER.line].Persons.length;
         PLAYER.X = LINES[PLAYER.line].getNextXPos();
         LINES[PLAYER.line].addPerson(PLAYER);
@@ -1062,16 +1080,7 @@ function checkEntry(){
         SELECTING = false;
         PLAYER_LEFT = false;
         clearInterval(entry);
-    }
-    }
-    else{
-//        PLAYER.position = LINES[PLAYER.line].Persons.length;
-        PLAYER.X = LINES[PLAYER.line].getNextXPos();
-        LINES[PLAYER.line].addPerson(PLAYER);
-    //    recordLineData()
-        SELECTING = false;
-        PLAYER_LEFT = false;
-        clearInterval(entry);
+        }
     }
     
 }
